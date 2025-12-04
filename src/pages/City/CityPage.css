@@ -1,0 +1,139 @@
+.city-page {
+  padding-bottom: 80px;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.city-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.city-back-button {
+  font-size: 20px;
+  color: #52c41a;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.city-back-button:hover {
+  transform: translateX(-3px);
+  color: #73d13d;
+}
+
+.city-search-input {
+  flex: 1;
+  border-radius: 12px;
+  border: 2px solid #f0f0f0;
+  transition: all 0.3s;
+}
+
+.city-search-input:hover {
+  border-color: #d9f7be;
+}
+
+.city-search-input:focus,
+.city-search-input-focused {
+  border-color: #52c41a;
+  box-shadow: 0 0 0 3px rgba(82, 196, 26, 0.1);
+}
+
+.city-location-card,
+.city-current-card {
+  border-radius: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.city-location-card:hover,
+.city-current-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.city-location-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.city-location-icon {
+  font-size: 24px;
+  color: #52c41a;
+}
+
+.city-pin-icon {
+  font-size: 24px;
+  color: #999;
+}
+
+.city-location-content {
+  flex: 1;
+}
+
+.city-location-title {
+  margin: 0 0 4px 0 !important;
+  color: #52c41a;
+  font-weight: 600;
+}
+
+.city-location-subtitle {
+  color: #999;
+  font-size: 14px;
+}
+
+.city-list-card {
+  border-radius: 16px;
+  margin-top: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  animation: slideUp 0.3s ease-out;
+}
+
+.city-list-item {
+  cursor: pointer;
+  padding: 12px 0 !important;
+  transition: background-color 0.2s;
+  border-radius: 8px;
+  margin: 4px 0;
+}
+
+.city-list-item:hover {
+  background-color: #f5f5f5;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .city-location-card,
+  .city-current-card,
+  .city-list-card {
+    border-radius: 0;
+    margin-left: -16px;
+    margin-right: -16px;
+    border-left: none;
+    border-right: none;
+  }
+}
+

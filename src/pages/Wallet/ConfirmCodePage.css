@@ -1,0 +1,144 @@
+.confirm-code-page {
+  padding-bottom: 80px;
+  animation: fadeIn 0.3s ease-in;
+  background: linear-gradient(180deg, #2d5016 0%, #52c41a 100%);
+  margin: -24px -24px 0 -24px;
+  padding: 24px;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.confirm-code-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.mbank-logo-small {
+  margin-bottom: 16px;
+}
+
+.mbank-logo-bg-small {
+  width: 64px;
+  height: 64px;
+  background: #389e0d;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.mbank-logo-m-small {
+  font-size: 36px;
+  font-weight: 700;
+  color: #ffd700;
+}
+
+.mbank-logo-star-small {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 16px;
+  color: #fff;
+}
+
+.confirm-code-title {
+  margin: 0 0 12px 0 !important;
+  color: #fff;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.confirm-code-subtitle {
+  color: #fff;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.confirm-code-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+}
+
+.confirm-code-inputs {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.confirm-code-input {
+  width: 60px;
+  height: 60px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 2px solid #f0f0f0;
+  transition: all 0.3s;
+}
+
+.confirm-code-input:focus,
+.confirm-code-input-focused {
+  border-color: #52c41a;
+  box-shadow: 0 0 0 3px rgba(82, 196, 26, 0.1);
+}
+
+.confirm-code-button {
+  height: 56px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 18px;
+  background: #52c41a;
+  border-color: #52c41a;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+}
+
+.confirm-code-button:hover {
+  background: #73d13d;
+  border-color: #73d13d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(82, 196, 26, 0.4);
+}
+
+.confirm-code-resend {
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+  padding: 0;
+}
+
+.confirm-code-resend:hover {
+  color: #d9f7be;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .confirm-code-page {
+    margin: -16px -16px 0 -16px;
+    padding: 16px;
+  }
+
+  .confirm-code-input {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+}
+

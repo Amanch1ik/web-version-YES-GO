@@ -1,0 +1,173 @@
+.referral-page {
+  padding-bottom: 80px;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.referral-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.referral-header-icon {
+  font-size: 24px;
+  color: #52c41a;
+}
+
+.referral-title {
+  margin: 0 !important;
+  color: #000;
+  font-weight: 600;
+}
+
+.referral-description-card {
+  border-radius: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.referral-description-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.referral-card-title {
+  margin-bottom: 12px !important;
+  color: #000;
+  font-weight: 600;
+}
+
+.referral-card-text {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.referral-stats {
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  border-radius: 12px;
+  text-align: center;
+  padding: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #f0f0f0;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card-bonus {
+  background: linear-gradient(135deg, #52c41a15 0%, #73d13d15 100%);
+  border-color: #52c41a;
+}
+
+.stat-label {
+  display: block;
+  color: #999;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  margin: 0 !important;
+  color: #000;
+  font-weight: 700;
+}
+
+.stat-value-bonus {
+  color: #52c41a !important;
+}
+
+.referral-link-card {
+  border-radius: 12px;
+  margin-bottom: 16px;
+  background: #f5f5f5;
+  border: 1px solid #e8e8e8;
+}
+
+.referral-link-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.referral-link-text {
+  flex: 1;
+  color: #000;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+}
+
+.copy-button {
+  color: #52c41a;
+  font-size: 18px;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.copy-button:hover {
+  transform: scale(1.1);
+  color: #73d13d;
+}
+
+.referral-actions {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+}
+
+.referral-action-button {
+  flex: 1;
+  height: 48px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  background: #52c41a;
+  border-color: #52c41a;
+  transition: all 0.3s;
+}
+
+.referral-action-button:hover {
+  background: #73d13d;
+  border-color: #73d13d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+}
+
+.referral-action-button:active {
+  transform: translateY(0);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .referral-description-card,
+  .referral-link-card {
+    border-radius: 0;
+    margin-left: -16px;
+    margin-right: -16px;
+    border-left: none;
+    border-right: none;
+  }
+}
+

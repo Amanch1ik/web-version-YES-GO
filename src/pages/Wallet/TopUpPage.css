@@ -1,0 +1,243 @@
+.topup-page {
+  padding-bottom: 80px;
+  animation: fadeIn 0.3s ease-in;
+  background: linear-gradient(180deg, #52c41a 0%, #389e0d 100%);
+  margin: -24px -24px 0 -24px;
+  padding: 24px;
+  min-height: calc(100vh - 80px);
+}
+
+.topup-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.topup-back-button {
+  font-size: 20px;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.topup-back-button:hover {
+  transform: translateX(-3px);
+  color: #d9f7be;
+}
+
+.topup-title {
+  margin: 0 !important;
+  color: #fff;
+  font-weight: 600;
+}
+
+.topup-top-cards {
+  margin-bottom: 16px;
+}
+
+.topup-balance-card,
+.topup-level-card,
+.topup-info-card,
+.topup-address-card {
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+  padding: 12px;
+}
+
+.topup-balance-card:hover,
+.topup-level-card:hover,
+.topup-info-card:hover,
+.topup-address-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.topup-coin-icon {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+.topup-balance-amount {
+  margin: 0 0 4px 0 !important;
+  color: #000;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.topup-coin-button {
+  background: #52c41a;
+  border-color: #52c41a;
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 10px;
+  height: 24px;
+  padding: 0 8px;
+}
+
+.topup-level-icon {
+  font-size: 24px;
+  margin-bottom: 2px;
+}
+
+.topup-level-name {
+  display: block;
+  color: #8b4513;
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.topup-levels-row {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.topup-level-badge {
+  font-size: 6px;
+  padding: 1px 2px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+.topup-level-badge.bronze {
+  background: #cd7f32;
+  color: #fff;
+}
+
+.topup-level-badge.gold {
+  background: #ffd700;
+  color: #000;
+}
+
+.topup-level-badge.silver {
+  background: #c0c0c0;
+  color: #000;
+}
+
+.topup-levels-label {
+  display: block;
+  color: #999;
+  font-size: 10px;
+}
+
+.topup-info-title,
+.topup-address-title {
+  margin: 0 0 8px 0 !important;
+  color: #000;
+  font-size: 10px;
+  text-align: left;
+}
+
+.topup-info-button,
+.topup-address-button {
+  background: #52c41a;
+  border-color: #52c41a;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 10px;
+  height: 20px;
+  padding: 0 6px;
+}
+
+.topup-address-icon {
+  font-size: 20px;
+  color: #ff4d4f;
+  margin-bottom: 4px;
+}
+
+.topup-promo-input {
+  border-radius: 12px;
+  margin-bottom: 24px;
+  height: 48px;
+  background: #f5f5f5;
+  border: 1px solid #e8e8e8;
+}
+
+.topup-amount-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.topup-amount-title {
+  margin: 0 0 16px 0 !important;
+  color: #000;
+  font-weight: 600;
+}
+
+.topup-amount-group {
+  width: 100%;
+}
+
+.topup-amount-option {
+  display: block;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.topup-amount-option:last-child {
+  border-bottom: none;
+}
+
+.topup-amount-option:hover {
+  background-color: #fafafa;
+  border-radius: 8px;
+  padding-left: 8px;
+}
+
+.topup-amount-option .ant-radio {
+  margin-right: 12px;
+}
+
+.topup-submit-button {
+  height: 56px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 18px;
+  background: #389e0d;
+  border-color: #389e0d;
+  box-shadow: 0 4px 12px rgba(56, 158, 13, 0.3);
+}
+
+.topup-submit-button:hover {
+  background: #52c41a;
+  border-color: #52c41a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(56, 158, 13, 0.4);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .topup-page {
+    margin: -16px -16px 0 -16px;
+    padding: 16px;
+  }
+
+  .topup-amount-section {
+    border-radius: 0;
+    margin: 0 -16px 24px -16px;
+  }
+}
+

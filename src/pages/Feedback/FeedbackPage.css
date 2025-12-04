@@ -1,0 +1,117 @@
+.feedback-page {
+  padding-bottom: 80px;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.feedback-header-icon {
+  font-size: 24px;
+  color: #52c41a;
+}
+
+.feedback-title {
+  margin: 0 !important;
+  color: #000;
+  font-weight: 600;
+}
+
+.feedback-faq-title {
+  margin-bottom: 16px !important;
+  color: #000;
+  font-weight: 600;
+}
+
+.feedback-faq-card {
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 0;
+}
+
+.feedback-collapse {
+  background: transparent;
+  border: none;
+}
+
+.feedback-collapse .ant-collapse-item {
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 0;
+}
+
+.feedback-collapse .ant-collapse-item:last-child {
+  border-bottom: none;
+}
+
+.feedback-panel {
+  background: transparent;
+}
+
+.feedback-panel .ant-collapse-header {
+  padding: 16px 20px;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.feedback-panel .ant-collapse-header:hover {
+  background-color: #fafafa;
+}
+
+.feedback-panel .ant-collapse-content {
+  background: #fafafa;
+}
+
+.feedback-panel .ant-collapse-content-box {
+  padding: 16px 20px;
+}
+
+.feedback-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.feedback-item {
+  padding: 8px 0;
+  color: #999;
+  font-size: 14px;
+  line-height: 1.6;
+  position: relative;
+  padding-left: 20px;
+  transition: color 0.2s;
+}
+
+.feedback-item:hover {
+  color: #666;
+}
+
+.feedback-item::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #52c41a;
+  font-weight: bold;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .feedback-faq-card {
+    border-radius: 0;
+    margin: 0 -16px;
+  }
+}
+

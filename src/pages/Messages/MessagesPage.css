@@ -1,0 +1,55 @@
+.messages-page {
+  padding-bottom: 80px;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.messages-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.messages-header-icon {
+  font-size: 24px;
+  color: #52c41a;
+}
+
+.messages-title {
+  margin: 0 !important;
+  color: #000;
+  font-weight: 600;
+}
+
+.messages-content-card {
+  border-radius: 16px;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.empty-description {
+  color: #999;
+  font-size: 16px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .messages-content-card {
+    border-radius: 0;
+    margin: 0 -16px;
+  }
+}
+
