@@ -13,28 +13,32 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate()
   const { user } = useAuth()
   
-  const { data: balance } = useQuery({
+  const { data: balance, isLoading: balanceLoading, error: balanceError } = useQuery({
     queryKey: ['wallet-balance'],
     queryFn: walletService.getBalance,
+    retry: 1,
+    refetchOnWindowFocus: false,
   })
 
-  const { data: partners } = useQuery({
+  const { data: partners, isLoading: partnersLoading } = useQuery({
     queryKey: ['partners'],
     queryFn: partnerService.getPartners,
+    retry: 1,
+    refetchOnWindowFocus: false,
   })
 
   const quickActions = [
-    { icon: '🎁', label: 'Бонусы', color: '#722ed1', onClick: () => navigate('/certificates') },
-    { icon: '🪙', label: 'Yess!Coin', color: '#faad14', onClick: () => navigate('/wallet') },
-    { icon: '📱', label: 'Мы', color: '#1890ff', onClick: () => navigate('/social') },
-    { icon: '🎉', label: 'Акции', color: '#722ed1', onClick: () => navigate('/partners') },
-    { icon: '🎂', label: 'ДР', color: '#eb2f96', onClick: () => navigate('/promo-code') },
+    { icon: '/src/Resources/Images/sc_bonus.png', label: 'Бонусы', color: '#722ed1', onClick: () => navigate('/certificates') },
+    { icon: '/src/Resources/Images/coin.png', label: 'Yess!Coin', color: '#faad14', onClick: () => navigate('/wallet') },
+    { icon: '/src/Resources/Images/sc_we.png', label: 'Мы', color: '#1890ff', onClick: () => navigate('/social') },
+    { icon: '/src/Resources/Images/sc_sale.png', label: 'Акции', color: '#722ed1', onClick: () => navigate('/partners') },
+    { icon: '/src/Resources/Images/storiespage_bday.png', label: 'ДР', color: '#eb2f96', onClick: () => navigate('/promo-code') },
   ]
 
   const categories = [
-    { name: 'Одежда и обувь', image: '👕', id: '1', color: '#52c41a' },
-    { name: 'Все для дома', image: '🛋️', id: '2', color: '#1890ff' },
-    { name: 'Электроника', image: '📱', id: '3', color: '#722ed1' },
+    { name: 'Одежда и обувь', icon: '/src/Resources/Images/cat_clothes.png', id: '1', color: '#52c41a' },
+    { name: 'Все для дома', icon: '/src/Resources/Images/cat_home.png', id: '2', color: '#1890ff' },
+    { name: 'Электроника', icon: '/src/Resources/Images/cat_electronics.png', id: '3', color: '#722ed1' },
   ]
 
   return (
@@ -62,31 +66,42 @@ const HomePage: React.FC = () => {
       <Card className="balance-card">
         <div className="balance-header">
           <Text className="balance-label">Ваш Баланс</Text>
-          <Button type="link" icon={<HistoryOutlined />} className="history-link">
+          <Button 
+            type="link" 
+            icon={<HistoryOutlined />} 
+            className="history-link"
+            onClick={() => navigate('/wallet')}
+          >
             История &gt;
           </Button>
         </div>
         <div className="balance-content">
           <div>
             <Title level={2} style={{ margin: 0, color: '#52c41a' }}>
-              {balance?.balance || 0}
+              {balanceLoading ? '...' : balanceError ? '0' : balance?.balance || 0}
             </Title>
             <Button className="coin-badge">Yess!Coin</Button>
           </div>
-          <div className="coins-illustration">🪙🪙🪙</div>
+          <div className="coins-illustration">
+            <img src="/src/Resources/Images/coin.png" alt="Coin" style={{ width: 32, height: 32, margin: '0 4px' }} />
+            <img src="/src/Resources/Images/coin.png" alt="Coin" style={{ width: 32, height: 32, margin: '0 4px' }} />
+            <img src="/src/Resources/Images/coin.png" alt="Coin" style={{ width: 32, height: 32, margin: '0 4px' }} />
+          </div>
         </div>
       </Card>
 
       {/* Quick Actions */}
       <div className="quick-actions">
-        {quickActions.map((action, index) => (
-          <div key={index} className="quick-action-item" onClick={action.onClick}>
-            <div className="quick-action-icon" style={{ backgroundColor: `${action.color}20` }}>
-              <span style={{ fontSize: 24 }}>{action.icon}</span>
+        {quickActions.map((action, index) => {
+          return (
+            <div key={index} className="quick-action-item" onClick={action.onClick}>
+              <div className="quick-action-icon" style={{ backgroundColor: `${action.color}20` }}>
+                <img src={action.icon} alt={action.label} style={{ width: 24, height: 24, objectFit: 'contain' }} />
+              </div>
+              <Text className="quick-action-label">{action.label}</Text>
             </div>
-            <Text className="quick-action-label">{action.label}</Text>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Promo Banners */}
@@ -103,7 +118,9 @@ const HomePage: React.FC = () => {
                 </Text>
                 <Text className="promo-code">Промокод: rt8pxdj</Text>
               </div>
-              <div className="promo-image">🛒</div>
+              <div className="promo-image">
+                <img src="/src/Resources/Images/banner_1.png" alt="Promo" style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.8 }} />
+              </div>
             </div>
           </Card>
         </Col>
@@ -122,7 +139,9 @@ const HomePage: React.FC = () => {
                 </Text>
                 <Text className="promo-code">Промокод: gnfva4t</Text>
               </div>
-              <div className="promo-image">🚚</div>
+              <div className="promo-image">
+                <img src="/src/Resources/Images/banner_2.png" alt="Delivery" style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: 0.8 }} />
+              </div>
             </div>
           </Card>
         </Col>
@@ -145,7 +164,9 @@ const HomePage: React.FC = () => {
                 onClick={() => navigate(`/partners?category=${category.id}`)}
                 style={{ cursor: 'pointer' }}
               >
-                <div className="category-icon" style={{ fontSize: 48 }}>{category.image}</div>
+                <div className="category-icon">
+                  <img src={category.icon} alt={category.name} style={{ width: 48, height: 48, objectFit: 'contain' }} />
+                </div>
                 <Text className="category-name">{category.name}</Text>
               </Card>
             </Col>
@@ -154,7 +175,7 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Partners */}
-      {partners && partners.length > 0 && (
+      {!partnersLoading && partners && partners.length > 0 && (
         <div style={{ marginTop: 32 }}>
           <div className="partners-header">
             <Title level={3} style={{ margin: 0 }}>Наши Партнеры</Title>

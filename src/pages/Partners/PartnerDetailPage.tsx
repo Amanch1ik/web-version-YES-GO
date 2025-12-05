@@ -13,11 +13,7 @@ import {
   List
 } from 'antd'
 import { 
-  ArrowLeftOutlined, 
-  ShoppingCartOutlined,
-  InstagramOutlined,
-  PhoneOutlined,
-  WhatsAppOutlined
+  ArrowLeftOutlined
 } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { partnerService } from '@/services/partner.service'
@@ -100,9 +96,10 @@ const PartnerDetailPage: React.FC = () => {
           </Title>
           <Button
             type="text"
-            icon={<ShoppingCartOutlined />}
             className="partner-detail-cart-button"
-          />
+          >
+            <img src="/src/Resources/Eye/basket.svg" alt="Cart" style={{ width: 20, height: 20 }} />
+          </Button>
         </div>
       </div>
 
@@ -139,20 +136,26 @@ const PartnerDetailPage: React.FC = () => {
             <div className="partner-social">
               <Button 
                 type="text" 
-                icon={<InstagramOutlined />} 
                 className="social-button"
-              />
+                onClick={() => window.open('https://instagram.com', '_blank')}
+              >
+                <img src="/src/Resources/PatnerDetailViewPage/skill_icons_instagram.svg" alt="Instagram" style={{ width: 24, height: 24 }} />
+              </Button>
               <Button 
                 type="text" 
-                icon={<WhatsAppOutlined />} 
                 className="social-button"
                 style={{ color: '#25D366' }}
-              />
+                onClick={() => window.open('https://wa.me', '_blank')}
+              >
+                <img src="/src/Resources/PatnerDetailViewPage/logos_whatsapp_icon.svg" alt="WhatsApp" style={{ width: 24, height: 24 }} />
+              </Button>
               <Button 
                 type="text" 
-                icon={<PhoneOutlined />} 
                 className="social-button"
-              />
+                onClick={() => window.open('tel:', '_blank')}
+              >
+                <img src="/src/Resources/PatnerDetailViewPage/famicons_call.svg" alt="Phone" style={{ width: 24, height: 24 }} />
+              </Button>
             </div>
           </div>
         </div>
@@ -221,8 +224,8 @@ const PartnerDetailPage: React.FC = () => {
                               type="primary" 
                               block 
                               className="product-add-button"
-                              icon={<ShoppingCartOutlined />}
                             >
+                              <img src="/src/Resources/Eye/basket.svg" alt="Cart" style={{ width: 16, height: 16, marginRight: 8 }} />
                               В корзину
                             </Button>
                           </Card>

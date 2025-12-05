@@ -14,13 +14,6 @@ export const authService = {
     const currentDevMode = import.meta.env.DEV || import.meta.env.VITE_DEV_MODE === 'true'
     
     if (currentDevMode) {
-      console.log('🚀 DEV MODE: Bypassing API, creating mock user')
-      console.log('🚀 DEV MODE: isDevMode check:', { 
-        DEV: import.meta.env.DEV, 
-        VITE_DEV_MODE: import.meta.env.VITE_DEV_MODE,
-        currentDevMode 
-      })
-      
       try {
         // Небольшая задержка для имитации запроса
         await new Promise(resolve => setTimeout(resolve, 300))
@@ -38,8 +31,6 @@ export const authService = {
           },
         }
         
-        console.log('🚀 DEV MODE: Setting token and user', mockUser)
-        
         try {
           setToken(mockUser.token)
           setUser(mockUser.user)
@@ -47,27 +38,19 @@ export const authService = {
           // Проверяем, что данные сохранились
           const savedToken = localStorage.getItem('yess_token')
           const savedUser = localStorage.getItem('yess_user')
-          console.log('🚀 DEV MODE: Saved to localStorage', { 
-            token: !!savedToken, 
-            user: !!savedUser,
-            userData: savedUser ? JSON.parse(savedUser) : null
-          })
           
           if (!savedToken || !savedUser) {
             throw new Error('Failed to save to localStorage')
           }
         } catch (storageError) {
-          console.error('🚀 DEV MODE: Storage error:', storageError)
           throw new Error('Не удалось сохранить данные авторизации')
         }
         
         // Даем время на сохранение в localStorage
         await new Promise(resolve => setTimeout(resolve, 100))
         
-        console.log('🚀 DEV MODE: Returning mock user', mockUser)
         return mockUser
       } catch (error) {
-        console.error('🚀 DEV MODE: Error in dev login:', error)
         throw error
       }
     }
@@ -90,8 +73,6 @@ export const authService = {
     } else {
       throw new Error('Необходимо указать email или телефон')
     }
-    
-    console.log('Login request data:', JSON.stringify(loginData, null, 2))
     
     const response = await api.post<AuthResponse>(API_ENDPOINTS.AUTH_LOGIN, loginData)
     if (response.data.token) {
@@ -142,8 +123,6 @@ export const authService = {
     if (cleanPhone) {
       registerData.phone = cleanPhone
     }
-    
-    console.log('Register request data:', JSON.stringify(registerData, null, 2))
     
     const response = await api.post<AuthResponse>(API_ENDPOINTS.AUTH_REGISTER, registerData)
     if (response.data.token) {

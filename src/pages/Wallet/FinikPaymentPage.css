@@ -1,0 +1,149 @@
+.finik-payment-page {
+  padding: 16px;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.finik-payment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.finik-payment-back-button {
+  font-size: 20px;
+  margin-right: 12px;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s;
+}
+
+.finik-payment-back-button:hover {
+  color: #52c41a;
+}
+
+.finik-payment-title {
+  margin: 0;
+  color: #333;
+}
+
+.finik-payment-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.finik-payment-content {
+  padding: 8px;
+}
+
+.finik-logo-section {
+  text-align: center;
+  margin-bottom: 32px;
+  padding: 24px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.finik-logo-icon {
+  font-size: 64px;
+  color: #52c41a;
+  margin-bottom: 16px;
+}
+
+.finik-logo-title {
+  margin: 0;
+  color: #52c41a;
+  font-weight: 600;
+}
+
+.finik-amount-section {
+  text-align: center;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+  border-radius: 12px;
+  color: #fff;
+}
+
+.finik-amount-label {
+  display: block;
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.finik-amount-value {
+  margin: 0;
+  color: #fff;
+  font-size: 48px;
+  font-weight: 700;
+}
+
+.finik-info-section {
+  margin-bottom: 24px;
+}
+
+.finik-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.finik-benefit-item {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.finik-payment-button {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+  border: none;
+  margin-bottom: 16px;
+  transition: all 0.3s;
+}
+
+.finik-payment-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.4);
+}
+
+.finik-help-text {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  color: #999;
+  margin-top: 16px;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .finik-payment-page {
+    padding: 12px;
+  }
+
+  .finik-logo-icon {
+    font-size: 48px;
+  }
+
+  .finik-amount-value {
+    font-size: 36px;
+  }
+}
+

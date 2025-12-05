@@ -11,23 +11,14 @@ const LoginForm: React.FC = () => {
   const navigate = useNavigate()
   const { updateUser } = useAuth()
   
-  // Проверка dev режима для отладки
-  const isDevMode = import.meta.env.DEV || import.meta.env.VITE_DEV_MODE === 'true'
-  if (isDevMode) {
-    console.log('DEV mode is active, dev login button should be visible')
-  }
-
   const { mutate, isPending } = useMutation({
     mutationFn: (data: LoginRequest) => authService.login(data),
     onSuccess: async (data) => {
-      console.log('✅ Login success, data:', data)
-      
       // Проверяем, что данные сохранились в localStorage (должны быть уже из authService.login)
       const token = localStorage.getItem('yess_token')
       const user = localStorage.getItem('yess_user')
       
       if (!token || !user) {
-        console.error('❌ Login: Data not saved, retrying...')
         // Повторно сохраняем
         const { setToken, setUser } = await import('@/utils/storage')
         setToken(data.token)
@@ -48,30 +39,20 @@ const LoginForm: React.FC = () => {
       // Проверяем финальное состояние перед навигацией
       const finalToken = localStorage.getItem('yess_token')
       const finalUser = localStorage.getItem('yess_user')
-      console.log('✅ Login: Final check before navigation', { 
-        token: !!finalToken, 
-        user: !!finalUser,
-        userData: finalUser ? JSON.parse(finalUser) : null
-      })
       
       if (finalToken && finalUser) {
-        console.log('✅ Login: Navigating to home page')
         // Даем дополнительное время на обновление состояния перед навигацией
         setTimeout(() => {
           navigate('/', { replace: true })
         }, 200)
       } else {
-        console.error('❌ Login: Data lost, cannot navigate')
         message.error('Ошибка сохранения данных авторизации')
       }
     },
     onError: (error: any) => {
-      console.error('Login error:', error)
-      
       // В DEV режиме не показываем ошибки сети
       const isDev = import.meta.env.DEV || import.meta.env.VITE_DEV_MODE === 'true'
       if (isDev && (error.code === 'ERR_NETWORK' || error.message?.includes('ERR_CONNECTION_REFUSED'))) {
-        console.log('DEV MODE: Network error ignored, this is expected in dev mode')
         return
       }
       
@@ -80,7 +61,6 @@ const LoginForm: React.FC = () => {
         message.error(`Не удалось подключиться к серверу. Убедитесь, что Backend API запущен на ${apiUrl}`)
       } else if (error.response?.status === 400) {
         const errorData = error.response?.data
-        console.error('Login error response:', JSON.stringify(errorData, null, 2))
         
         if (errorData?.errors && typeof errorData.errors === 'object') {
           const errorMessages = Object.entries(errorData.errors)
@@ -115,11 +95,6 @@ const LoginForm: React.FC = () => {
     e.stopPropagation()
     
     const isDev = import.meta.env.DEV || import.meta.env.VITE_DEV_MODE === 'true'
-    console.log('🚀 DEV login button clicked', { 
-      isDev, 
-      DEV: import.meta.env.DEV, 
-      VITE_DEV_MODE: import.meta.env.VITE_DEV_MODE 
-    })
     
     if (!isDev) {
       message.warning('DEV режим не активен. Убедитесь, что вы запускаете приложение через npm run dev')
@@ -131,21 +106,8 @@ const LoginForm: React.FC = () => {
       password: 'dev123',
     }
     
-    console.log('🚀 Calling mutate with:', mockData)
-    
     // Вызываем mutate напрямую - onSuccess и onError уже определены в useMutation
-    mutate(mockData, {
-      onSuccess: (data) => {
-        console.log('🚀 DEV login success from handleDevLogin:', data)
-      },
-      onError: (error) => {
-        console.error('🚀 DEV login error from handleDevLogin:', error)
-        // В DEV режиме показываем более детальную ошибку
-        if (isDev) {
-          message.error(`Ошибка DEV входа: ${error.message || JSON.stringify(error)}`)
-        }
-      }
-    })
+    mutate(mockData)
   }
 
   return (

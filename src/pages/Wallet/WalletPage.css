@@ -29,7 +29,9 @@
 }
 
 .wallet-coin-icon {
-  font-size: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 8px;
 }
 
@@ -48,7 +50,9 @@
 }
 
 .wallet-level-icon {
-  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 4px;
 }
 

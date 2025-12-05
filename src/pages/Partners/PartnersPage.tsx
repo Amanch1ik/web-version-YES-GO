@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Input, Card, List, Avatar, Typography, Button, Space, Badge } from 'antd'
-import { SearchOutlined, MenuOutlined, ShoppingCartOutlined, EnvironmentOutlined } from '@ant-design/icons'
+import { 
+  SearchOutlined, 
+  MenuOutlined, 
+  ShoppingCartOutlined, 
+  EnvironmentOutlined
+} from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { partnerService } from '@/services/partner.service'
 import { Partner } from '@/types/partner'
@@ -14,9 +19,11 @@ const PartnersPage: React.FC = () => {
   const [searchValue, setSearchValue] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('Красота')
 
-  const { data: partners, isLoading } = useQuery({
+  const { data: partners, isLoading, error } = useQuery({
     queryKey: ['partners'],
     queryFn: partnerService.getPartners,
+    retry: 1,
+    refetchOnWindowFocus: false,
   })
 
   const categories = ['Красота', 'Еда и напитки', 'Продукты']
@@ -33,11 +40,11 @@ const PartnersPage: React.FC = () => {
 
   const getPartnerIcon = (partnerName: string) => {
     // Простая логика для иконок
-    if (partnerName.includes('Фармамир')) return '💎'
-    if (partnerName.includes('Кофе')) return '☕'
-    if (partnerName.includes('Салон')) return '💅'
-    if (partnerName.includes('Элдик')) return '🛍️'
-    return '🏪'
+    if (partnerName.includes('Фармамир')) return <img src="/src/Resources/Images/category_products.png" alt="Shop" style={{ width: 24, height: 24 }} />
+    if (partnerName.includes('Кофе')) return <img src="/src/Resources/Images/category_cafe.png" alt="Cafe" style={{ width: 24, height: 24 }} />
+    if (partnerName.includes('Салон')) return <img src="/src/Resources/Images/cat_beauty.png" alt="Beauty" style={{ width: 24, height: 24 }} />
+    if (partnerName.includes('Элдик')) return <img src="/src/Resources/Images/cat_electronics.png" alt="Electronics" style={{ width: 24, height: 24 }} />
+    return <img src="/src/Resources/Images/cat_all.png" alt="Shop" style={{ width: 24, height: 24 }} />
   }
 
   const filteredPartners = partners?.filter((partner: Partner) =>
@@ -82,7 +89,7 @@ const PartnersPage: React.FC = () => {
       <Card className="partners-list-card">
         <List
           loading={isLoading}
-          dataSource={filteredPartners}
+          dataSource={error ? [] : filteredPartners}
           renderItem={(partner: Partner) => (
             <List.Item 
               className="partner-item"
@@ -91,11 +98,9 @@ const PartnersPage: React.FC = () => {
             >
               <List.Item.Meta
                 avatar={
-                  <Avatar
-                    size={48}
-                    style={{ backgroundColor: '#52c41a' }}
-                    icon={<span style={{ fontSize: 24 }}>{getPartnerIcon(partner.name)}</span>}
-                  />
+                  <div style={{ width: 48, height: 48, borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#52c41a' }}>
+                    {getPartnerIcon(partner.name)}
+                  </div>
                 }
                 title={
                   <div className="partner-title-row">

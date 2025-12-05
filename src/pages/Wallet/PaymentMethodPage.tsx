@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Card, Typography, List, Avatar } from 'antd'
-import { ArrowLeftOutlined, RightOutlined } from '@ant-design/icons'
+import { Card, Typography, List, Avatar, message } from 'antd'
+import { ArrowLeftOutlined, RightOutlined, CreditCardOutlined } from '@ant-design/icons'
 import './PaymentMethodPage.css'
 
 const { Title, Text } = Typography
@@ -11,6 +11,16 @@ const PaymentMethodPage: React.FC = () => {
   const amount = location.state?.amount || 100
 
   const paymentMethods = [
+    {
+      id: 'finik',
+      name: 'Finik',
+      description: 'Быстрые и безопасные платежи',
+      icon: (
+        <div className="finik-icon">
+          <CreditCardOutlined style={{ fontSize: 24, color: '#52c41a' }} />
+        </div>
+      ),
+    },
     {
       id: 'mbank',
       name: 'МБанк',
@@ -54,10 +64,13 @@ const PaymentMethodPage: React.FC = () => {
   ]
 
   const handleSelectMethod = (methodId: string) => {
-    if (methodId === 'mbank') {
+    if (methodId === 'finik') {
+      navigate('/wallet/finik-payment', { state: { amount } })
+    } else if (methodId === 'mbank') {
       navigate('/wallet/mbank-topup', { state: { amount } })
     } else {
-      navigate('/wallet/payment', { state: { amount, method: methodId } })
+      // Для других методов оплаты показываем сообщение
+      message.info(`Метод оплаты "${methodId}" находится в разработке`)
     }
   }
 

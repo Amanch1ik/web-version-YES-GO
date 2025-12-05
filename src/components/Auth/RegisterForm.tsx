@@ -33,7 +33,6 @@ const RegisterForm: React.FC = () => {
         message.error(`Не удалось подключиться к серверу. Убедитесь, что Backend API запущен на ${apiUrl}`)
       } else if (error.response?.status === 400) {
         const errorData = error.response?.data
-        console.error('Registration error response:', JSON.stringify(errorData, null, 2))
         
         if (errorData?.errors && typeof errorData.errors === 'object') {
           const errorMessages = Object.entries(errorData.errors)

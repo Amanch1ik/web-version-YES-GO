@@ -7,13 +7,15 @@ interface WelcomeScreenProps {
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
   const [show, setShow] = useState(true)
+  const [fadeOut, setFadeOut] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShow(false)
+      setFadeOut(true)
       setTimeout(() => {
+        setShow(false)
         onComplete()
-      }, 300)
+      }, 400) // Время для fade-out анимации
     }, 2500) // Показываем welcome screen 2.5 секунды
 
     return () => clearTimeout(timer)
@@ -22,7 +24,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
   if (!show) return null
 
   return (
-    <div className="welcome-screen">
+    <div className={`welcome-screen ${fadeOut ? 'fade-out' : ''}`}>
       <div className="welcome-text">Добро пожаловать в</div>
       <div className="welcome-title">Yess!</div>
       <div className="home-indicator"></div>

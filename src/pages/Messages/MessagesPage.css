@@ -11,8 +11,9 @@
 }
 
 .messages-header-icon {
-  font-size: 24px;
-  color: #52c41a;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .messages-title {

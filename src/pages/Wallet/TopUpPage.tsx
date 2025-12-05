@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Card, Typography, Button, Row, Col, Input, Radio, Space } from 'antd'
-import { ArrowLeftOutlined, EnvironmentOutlined } from '@ant-design/icons'
+import { ArrowLeftOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { walletService } from '@/services/wallet.service'
@@ -40,7 +40,9 @@ const TopUpPage: React.FC = () => {
       <Row gutter={12} className="topup-top-cards">
         <Col xs={6}>
           <Card className="topup-balance-card">
-            <div className="topup-coin-icon">🪙</div>
+            <div className="topup-coin-icon">
+              <img src="/src/Resources/Images/coin.png" alt="Coin" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            </div>
             <Title level={3} className="topup-balance-amount">
               {balance?.balance || 55.7}
             </Title>
@@ -51,7 +53,9 @@ const TopUpPage: React.FC = () => {
         </Col>
         <Col xs={6}>
           <Card className="topup-level-card">
-            <div className="topup-level-icon">🛡️</div>
+            <div className="topup-level-icon">
+              <img src="/src/Resources/Images/flash_icon.png" alt="Level" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            </div>
             <Text className="topup-level-name">Бронза</Text>
             <div className="topup-levels-row">
               <span className="topup-level-badge bronze">BRONZE</span>
@@ -73,7 +77,7 @@ const TopUpPage: React.FC = () => {
         </Col>
         <Col xs={6}>
           <Card className="topup-address-card">
-            <EnvironmentOutlined className="topup-address-icon" />
+            <img src="/src/Resources/Images/icon_location.png" alt="Location" className="topup-address-icon" style={{ width: 24, height: 24 }} />
             <Title level={5} className="topup-address-title">
               Адреса наших партнеров
             </Title>

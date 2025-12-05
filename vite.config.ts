@@ -13,9 +13,15 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_BASE_URL || 'http://localhost:8000',
+        target: process.env.VITE_API_BASE_URL || 'http://5.59.232.211:8000',
         changeOrigin: true,
         secure: false, // Для работы с HTTP (если используется)
+        rewrite: (path) => path, // Не переписываем путь, так как он уже содержит /api
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.error('Proxy error:', err.message)
+          })
+        },
       },
     },
   },

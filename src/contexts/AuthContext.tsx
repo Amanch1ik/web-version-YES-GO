@@ -56,12 +56,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const token = getToken()
       const userData = getUser()
       if (token && userData && !isAuthenticated) {
-        console.log('AuthContext: Found auth data in localStorage, updating state')
         setUserState(userData)
         setIsAuthenticated(true)
         setLoading(false)
       } else if (!token && isAuthenticated) {
-        console.log('AuthContext: Token lost, clearing state')
         setUserState(null)
         setIsAuthenticated(false)
       }
@@ -77,7 +75,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const updateUser = useCallback((userData: User) => {
     // Убеждаемся, что токен есть
     const token = getToken()
-    console.log('AuthContext: updateUser called', { token: !!token, userData })
     
     if (token && userData) {
       // Сначала обновляем localStorage
@@ -87,14 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUserState(userData)
       setIsAuthenticated(true)
       setLoading(false)
-      
-      console.log('AuthContext: User updated successfully', { 
-        isAuthenticated: true, 
-        user: userData,
-        token: token.substring(0, 20) + '...'
-      })
     } else {
-      console.warn('AuthContext: Token or userData missing', { token: !!token, userData: !!userData })
       // Если нет токена или данных, сбрасываем состояние
       setUserState(null)
       setIsAuthenticated(false)

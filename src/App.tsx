@@ -23,6 +23,9 @@ import TopUpPage from './pages/Wallet/TopUpPage'
 import PaymentMethodPage from './pages/Wallet/PaymentMethodPage'
 import MBankTopUpPage from './pages/Wallet/MBankTopUpPage'
 import ConfirmCodePage from './pages/Wallet/ConfirmCodePage'
+import FinikPaymentPage from './pages/Wallet/FinikPaymentPage'
+import FinikSuccessPage from './pages/Wallet/FinikSuccessPage'
+import FinikSettingsPage from './pages/Settings/FinikSettingsPage'
 import SocialPage from './pages/Social/SocialPage'
 import QRScannerPage from './pages/QR/QRScannerPage'
 import { Spin } from 'antd'
@@ -41,7 +44,6 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   // Если есть данные в localStorage, но состояние не синхронизировано, обновляем его
   useEffect(() => {
     if (hasLocalStorageAuth && !isAuthenticated && !loading) {
-      console.log('PrivateRoute: Syncing auth state from localStorage')
       refreshAuth()
     }
   }, [hasLocalStorageAuth, isAuthenticated, loading, refreshAuth])
@@ -55,22 +57,11 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
     )
   }
 
-  console.log('PrivateRoute check:', { 
-    isAuthenticated, 
-    token: !!token, 
-    user: !!user, 
-    hasAuth,
-    hasLocalStorageAuth,
-    loading 
-  })
-
   // Если есть данные в localStorage, разрешаем доступ даже если состояние еще не обновлено
   if (!hasAuth) {
-    console.log('❌ PrivateRoute: Not authenticated, redirecting to login')
     return <Navigate to="/login" replace />
   }
 
-  console.log('✅ PrivateRoute: Authenticated, rendering children')
   return <>{children}</>
 }
 
@@ -222,6 +213,46 @@ function App() {
             <PrivateRoute>
               <AppLayout>
                 <ConfirmCodePage />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/wallet/finik-payment"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <FinikPaymentPage />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/wallet/finik-success"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <FinikSuccessPage />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/wallet/payment"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <PaymentMethodPage />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/settings/finik"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <FinikSettingsPage />
               </AppLayout>
             </PrivateRoute>
           }

@@ -8,7 +8,7 @@ const MessagesPage: React.FC = () => {
   return (
     <div className="messages-page">
       <div className="messages-header">
-        <MessageOutlined className="messages-header-icon" />
+        <img src="/src/Resources/Images/icon_messages.png" alt="Messages" className="messages-header-icon" style={{ width: 24, height: 24 }} />
         <Title level={3} className="messages-title">
           Сообщения
         </Title>

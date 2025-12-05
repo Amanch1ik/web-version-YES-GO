@@ -1,5 +1,4 @@
 import { useNavigate, useLocation } from 'react-router-dom'
-import { HomeOutlined, AppstoreOutlined, QrcodeOutlined, BellOutlined, UserOutlined } from '@ant-design/icons'
 import './BottomNavigation.css'
 
 const BottomNavigation: React.FC = () => {
@@ -7,11 +6,11 @@ const BottomNavigation: React.FC = () => {
   const location = useLocation()
 
   const navItems = [
-    { path: '/', icon: HomeOutlined, label: 'Главная' },
-    { path: '/categories', icon: AppstoreOutlined, label: 'Партнеры' },
-    { path: '/qr', icon: QrcodeOutlined, label: '' },
-    { path: '/notifications', icon: BellOutlined, label: 'Уведомления' },
-    { path: '/profile', icon: UserOutlined, label: 'Еще' },
+    { path: '/', icon: '/src/Resources/Images/nav_home.png', iconActive: '/src/Resources/Images/nav_home_press.png', label: 'Главная' },
+    { path: '/categories', icon: '/src/Resources/Images/nav_partners.png', iconActive: '/src/Resources/Images/nav_partners_press.png', label: 'Партнеры' },
+    { path: '/qr', icon: '/src/Resources/Images/nav_qr.png', iconActive: '/src/Resources/Images/nav_qr.png', label: '' },
+    { path: '/notifications', icon: '/src/Resources/Images/nav_notification.png', iconActive: '/src/Resources/Images/nav_notification_press.png', label: 'Уведомления' },
+    { path: '/profile', icon: '/src/Resources/Images/nav_more.png', iconActive: '/src/Resources/Images/nav_more_press.png', label: 'Еще' },
   ]
 
   const isActive = (path: string) => {
@@ -24,8 +23,8 @@ const BottomNavigation: React.FC = () => {
   return (
     <div className="bottom-navigation">
       {navItems.map((item) => {
-        const Icon = item.icon
         const active = isActive(item.path)
+        const iconSrc = active ? item.iconActive : item.icon
         
         return (
           <div
@@ -33,7 +32,7 @@ const BottomNavigation: React.FC = () => {
             className={`nav-item ${active ? 'active' : ''}`}
             onClick={() => navigate(item.path)}
           >
-            <Icon className="nav-icon" />
+            <img src={iconSrc} alt={item.label || 'Nav'} className="nav-icon" />
             {item.label && <span className="nav-label">{item.label}</span>}
           </div>
         )

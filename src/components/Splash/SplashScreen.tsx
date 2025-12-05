@@ -7,13 +7,15 @@ interface SplashScreenProps {
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const [show, setShow] = useState(true)
+  const [fadeOut, setFadeOut] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShow(false)
+      setFadeOut(true)
       setTimeout(() => {
+        setShow(false)
         onComplete()
-      }, 300)
+      }, 400) // Время для fade-out анимации
     }, 2000) // Показываем splash screen 2 секунды
 
     return () => clearTimeout(timer)
@@ -22,7 +24,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   if (!show) return null
 
   return (
-    <div className="splash-screen">
+    <div className={`splash-screen ${fadeOut ? 'fade-out' : ''}`}>
       <div className="splash-logo">φ</div>
       <div className="home-indicator"></div>
     </div>

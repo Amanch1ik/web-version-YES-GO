@@ -3,7 +3,8 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border-top: 1px solid #f0f0f0;
   display: flex;
   justify-content: space-around;
@@ -11,7 +12,7 @@
   padding: 8px 0;
   z-index: 1000;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-  animation: slideUp 0.4s ease-out;
+  animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes slideUp {
@@ -33,7 +34,8 @@
   }
 
   .nav-icon {
-    font-size: 22px;
+    width: 22px;
+    height: 22px;
   }
 
   .nav-label {
@@ -58,7 +60,7 @@
   justify-content: center;
   cursor: pointer;
   padding: 4px 16px;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 60px;
   border-radius: 12px;
   position: relative;
@@ -66,7 +68,7 @@
 
 .nav-item:hover {
   background: rgba(82, 196, 26, 0.1);
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.05);
 }
 
 .nav-item:active {
@@ -82,7 +84,9 @@
 }
 
 .nav-icon {
-  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
   margin-bottom: 4px;
 }
 
@@ -92,8 +96,8 @@
 }
 
 .nav-item.active .nav-icon {
-  color: #52c41a;
-  animation: iconPulse 0.3s ease;
+  animation: iconPulse 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: brightness(1.2);
 }
 
 @keyframes iconPulse {
@@ -101,7 +105,7 @@
     transform: scale(1);
   }
   50% {
-    transform: scale(1.2);
+    transform: scale(1.15);
   }
   100% {
     transform: scale(1);
@@ -133,6 +137,6 @@
 }
 
 .nav-item:not(.active) .nav-icon {
-  color: #999;
+  opacity: 0.6;
 }
 

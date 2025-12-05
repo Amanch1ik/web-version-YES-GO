@@ -1,5 +1,8 @@
-import { Card, Typography, Button, Row, Col, List, Avatar, Empty, message } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
+import { Card, Typography, Button, Row, Col, List, Avatar, Empty, Spin, message } from 'antd'
+import { 
+  PlusOutlined, 
+  InfoCircleOutlined
+} from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { walletService } from '@/services/wallet.service'
@@ -10,14 +13,18 @@ const { Title, Text } = Typography
 
 const WalletPage: React.FC = () => {
   const navigate = useNavigate()
-  const { data: balance } = useQuery({
+  const { data: balance, isLoading: balanceLoading } = useQuery({
     queryKey: ['wallet-balance'],
     queryFn: walletService.getBalance,
+    retry: 1,
+    refetchOnWindowFocus: false,
   })
 
-  const { data: transactions } = useQuery({
+  const { data: transactions, isLoading: transactionsLoading } = useQuery({
     queryKey: ['wallet-transactions'],
     queryFn: walletService.getTransactions,
+    retry: 1,
+    refetchOnWindowFocus: false,
   })
 
   // Группируем транзакции по датам
@@ -32,12 +39,12 @@ const WalletPage: React.FC = () => {
   }, {}) || {}
 
   const getTransactionIcon = (description: string) => {
-    if (description.includes('Фармамир')) return '💎'
-    if (description.includes('Кофе')) return '☕'
-    if (description.includes('Салон')) return '💅'
-    if (description.includes('Элдик')) return '🛍️'
-    if (description.includes('Продукты')) return '🛒'
-    return '🏪'
+    if (description.includes('Фармамир')) return <img src="/src/Resources/Images/category_products.png" alt="Shop" style={{ width: 20, height: 20 }} />
+    if (description.includes('Кофе')) return <img src="/src/Resources/Images/category_cafe.png" alt="Cafe" style={{ width: 20, height: 20 }} />
+    if (description.includes('Салон')) return <img src="/src/Resources/Images/cat_beauty.png" alt="Beauty" style={{ width: 20, height: 20 }} />
+    if (description.includes('Элдик')) return <img src="/src/Resources/Images/cat_electronics.png" alt="Electronics" style={{ width: 20, height: 20 }} />
+    if (description.includes('Продукты')) return <img src="/src/Resources/Images/category_products.png" alt="Products" style={{ width: 20, height: 20 }} />
+    return <img src="/src/Resources/Images/cat_all.png" alt="Shop" style={{ width: 20, height: 20 }} />
   }
 
   const formatDate = (dateString: string) => {
@@ -61,9 +68,11 @@ const WalletPage: React.FC = () => {
       <Row gutter={12} className="wallet-top-cards">
         <Col xs={8}>
           <Card className="wallet-balance-card">
-            <div className="wallet-coin-icon">🪙</div>
+            <div className="wallet-coin-icon">
+              <img src="/src/Resources/Images/coin.png" alt="Coin" style={{ width: 48, height: 48, objectFit: 'contain' }} />
+            </div>
             <Title level={2} className="wallet-balance-amount">
-              {balance?.balance || 55.7}
+              {balanceLoading ? <Spin size="small" /> : balance?.balance || 0}
             </Title>
             <Button className="wallet-coin-button" size="small">
               Yess!Coin
@@ -72,7 +81,9 @@ const WalletPage: React.FC = () => {
         </Col>
         <Col xs={8}>
           <Card className="wallet-level-card">
-            <div className="wallet-level-icon">🛡️</div>
+            <div className="wallet-level-icon">
+              <img src="/src/Resources/Images/flash_icon.png" alt="Level" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+            </div>
             <Text className="wallet-level-name">Бронза</Text>
             <div className="wallet-levels-row">
               <span className="wallet-level-badge bronze">BRONZE</span>
@@ -115,7 +126,11 @@ const WalletPage: React.FC = () => {
           История покупок
         </Title>
 
-        {transactions && transactions.length === 0 ? (
+        {transactionsLoading ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <Spin size="large" />
+          </div>
+        ) : transactions && transactions.length === 0 ? (
           <Empty description="Нет транзакций" />
         ) : (
           <div className="wallet-transactions">
@@ -131,8 +146,8 @@ const WalletPage: React.FC = () => {
                           avatar={
                             <Avatar
                               size={40}
-                              style={{ backgroundColor: '#f0f9e8' }}
-                              icon={<span style={{ fontSize: 20 }}>{getTransactionIcon(transaction.description)}</span>}
+                              style={{ backgroundColor: '#f0f9e8', color: '#52c41a' }}
+                              icon={getTransactionIcon(transaction.description)}
                             />
                           }
                           title={

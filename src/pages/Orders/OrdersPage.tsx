@@ -1,4 +1,4 @@
-import { Card, List, Tag, Typography, Empty } from 'antd'
+import { Card, List, Tag, Typography, Empty, Spin } from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import { orderService } from '@/services/order.service'
 import { Order } from '@/types/order'
@@ -6,9 +6,11 @@ import { Order } from '@/types/order'
 const { Title } = Typography
 
 const OrdersPage: React.FC = () => {
-  const { data: orders, isLoading } = useQuery({
+  const { data: orders, isLoading, error } = useQuery({
     queryKey: ['orders'],
     queryFn: orderService.getOrders,
+    retry: 1,
+    refetchOnWindowFocus: false,
   })
 
   const getStatusColor = (status: string) => {
@@ -58,11 +60,16 @@ const OrdersPage: React.FC = () => {
   return (
     <div>
       <Title level={2}>Мои заказы</Title>
-      {orders && orders.length === 0 ? (
+      {isLoading ? (
+        <div style={{ textAlign: 'center', padding: '40px' }}>
+          <Spin size="large" />
+        </div>
+      ) : error ? (
+        <Empty description="Не удалось загрузить заказы" />
+      ) : orders && orders.length === 0 ? (
         <Empty description="У вас пока нет заказов" />
       ) : (
         <List
-          loading={isLoading}
           dataSource={orders}
           renderItem={(order: Order) => (
             <Card style={{ marginBottom: 16 }}>

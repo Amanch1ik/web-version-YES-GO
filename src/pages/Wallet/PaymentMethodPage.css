@@ -162,6 +162,17 @@
   font-size: 16px;
 }
 
+.finik-icon {
+  width: 100%;
+  height: 100%;
+  background: #f0f9ff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e0f2fe;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

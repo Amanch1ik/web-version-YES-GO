@@ -86,7 +86,12 @@ const CityPage: React.FC = () => {
                 onClick={() => handleCitySelect(city.name)}
               >
                 <List.Item.Meta
-                  avatar={<Avatar icon={<EnvironmentOutlined />} style={{ backgroundColor: '#52c41a' }} />}
+                  avatar={
+                    <Avatar 
+                      icon={<img src="/src/Resources/Images/icon_location.png" alt="Location" style={{ width: 20, height: 20 }} />} 
+                      style={{ backgroundColor: '#52c41a' }} 
+                    />
+                  }
                   title={city.name}
                   description={city.region}
                 />

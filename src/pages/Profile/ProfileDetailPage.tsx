@@ -56,7 +56,6 @@ const ProfileDetailPage: React.FC = () => {
       setIsEditing(false)
       message.success('Профиль успешно обновлен!')
     } catch (error: any) {
-      console.error('Ошибка при обновлении профиля:', error)
       message.error(
         error.response?.data?.message || 
         'Не удалось обновить профиль. Попробуйте еще раз.'
@@ -74,7 +73,6 @@ const ProfileDetailPage: React.FC = () => {
       logout()
       window.location.href = '/login'
     } catch (error: any) {
-      console.error('Ошибка при удалении аккаунта:', error)
       message.error(
         error.response?.data?.message || 
         'Не удалось удалить аккаунт. Попробуйте еще раз.'
@@ -106,9 +104,35 @@ const ProfileDetailPage: React.FC = () => {
       </div>
 
       {/* Profile Image Card */}
-      <Card className="profile-image-card">
+      <Card 
+        className="profile-image-card"
+        onClick={() => {
+          const input = document.createElement('input')
+          input.type = 'file'
+          input.accept = 'image/*'
+          input.onchange = (e: any) => {
+            const file = e.target.files?.[0]
+            if (file) {
+              // Здесь можно добавить загрузку изображения на сервер
+              const reader = new FileReader()
+              reader.onload = () => {
+                message.info('Изображение загружено (в разработке)')
+                // В будущем здесь будет загрузка на сервер и обновление аватара
+              }
+              reader.readAsDataURL(file)
+            }
+          }
+          input.click()
+        }}
+        style={{ cursor: 'pointer' }}
+      >
         <div className="profile-image-content">
-          <Avatar size={80} icon={<UserOutlined />} className="profile-detail-avatar" />
+          <Avatar 
+            size={80} 
+            src={user?.avatar || '/src/Resources/Images/profile.png'} 
+            icon={<UserOutlined />} 
+            className="profile-detail-avatar" 
+          />
           <div className="profile-image-info">
             <Title level={4} className="profile-image-name">
               {userFullName}

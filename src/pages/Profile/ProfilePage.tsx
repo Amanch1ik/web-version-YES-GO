@@ -2,16 +2,9 @@ import { useState } from 'react'
 import { Card, Avatar, Typography, Button, List, Modal, Space } from 'antd'
 import {
   UserOutlined,
-  EnvironmentOutlined,
-  PaperClipOutlined,
-  MessageOutlined,
-  ShareAltOutlined,
-  FileTextOutlined,
-  ClockCircleOutlined,
-  FileDoneOutlined,
-  LogoutOutlined,
   RightOutlined,
   CheckCircleOutlined,
+  SettingOutlined,
 } from '@ant-design/icons'
 import { useAuth } from '@/contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
@@ -40,7 +33,7 @@ const ProfilePage: React.FC = () => {
   const menuItems: MenuItem[] = [
     {
       key: 'city',
-      icon: <EnvironmentOutlined />,
+      icon: <img src="/src/Resources/Images/icon_location.png" alt="City" style={{ width: 20, height: 20 }} />,
       title: 'Мой город',
       subtitle: 'Бишкек',
       onClick: () => {
@@ -49,7 +42,7 @@ const ProfilePage: React.FC = () => {
     },
     {
       key: 'promo',
-      icon: <PaperClipOutlined />,
+      icon: <img src="/src/Resources/Images/icon_promo.png" alt="Promo" style={{ width: 20, height: 20 }} />,
       title: 'Ввести промокод',
       onClick: () => {
         navigate('/promo-code')
@@ -57,7 +50,7 @@ const ProfilePage: React.FC = () => {
     },
     {
       key: 'messages',
-      icon: <MessageOutlined />,
+      icon: <img src="/src/Resources/Images/icon_messages.png" alt="Messages" style={{ width: 20, height: 20 }} />,
       title: 'Сообщения',
       onClick: () => {
         navigate('/messages')
@@ -65,7 +58,7 @@ const ProfilePage: React.FC = () => {
     },
     {
       key: 'referral',
-      icon: <ShareAltOutlined />,
+      icon: <img src="/src/Resources/Images/icon_referral.png" alt="Referral" style={{ width: 20, height: 20 }} />,
       title: 'Реферальная ссылка',
       onClick: () => {
         navigate('/referral')
@@ -73,7 +66,7 @@ const ProfilePage: React.FC = () => {
     },
     {
       key: 'history',
-      icon: <FileTextOutlined />,
+      icon: <img src="/src/Resources/Images/icon_history.png" alt="History" style={{ width: 20, height: 20 }} />,
       title: 'История операции',
       onClick: () => {
         navigate('/wallet')
@@ -81,7 +74,7 @@ const ProfilePage: React.FC = () => {
     },
     {
       key: 'feedback',
-      icon: <ClockCircleOutlined />,
+      icon: <img src="/src/Resources/Images/icon_feedback.png" alt="Feedback" style={{ width: 20, height: 20 }} />,
       title: 'Обратная связь',
       onClick: () => {
         navigate('/feedback')
@@ -89,15 +82,24 @@ const ProfilePage: React.FC = () => {
     },
     {
       key: 'certificates',
-      icon: <FileDoneOutlined />,
+      icon: <img src="/src/Resources/Images/icon_certificate.png" alt="Certificates" style={{ width: 20, height: 20 }} />,
       title: 'Мои сертификаты',
       onClick: () => {
         navigate('/certificates')
       },
     },
     {
+      key: 'finik',
+      icon: <SettingOutlined />,
+      title: 'Настройки Finik',
+      subtitle: 'API ключи для платежей',
+      onClick: () => {
+        navigate('/settings/finik')
+      },
+    },
+    {
       key: 'logout',
-      icon: <LogoutOutlined />,
+      icon: <img src="/src/Resources/Images/icon_logout.png" alt="Logout" style={{ width: 20, height: 20 }} />,
       title: 'Выйти',
       onClick: () => {
         setLogoutModalVisible(true)
@@ -140,7 +142,7 @@ const ProfilePage: React.FC = () => {
         <div className="profile-methods-icons">
           <div className="method-icon-wrapper">
             <div className="method-icon method-icon-document">
-              <FileTextOutlined />
+              <img src="/src/Resources/Images/icon_google.png" alt="Document" style={{ width: 24, height: 24 }} />
             </div>
             <CheckCircleOutlined className="method-check" />
           </div>

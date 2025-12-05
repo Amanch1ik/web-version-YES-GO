@@ -9,18 +9,18 @@ const CategoriesPage: React.FC = () => {
   const navigate = useNavigate()
 
   const categories = [
-    { id: 1, name: 'Все компании', icon: '🤝', color: '#faad14' },
-    { id: 2, name: 'Еда и напитки', icon: '🍳', color: '#ff4d4f' },
-    { id: 3, name: 'Одежда и обувь', icon: '👕', color: '#1890ff' },
-    { id: 4, name: 'Красота', icon: '💄', color: '#eb2f96' },
-    { id: 5, name: 'Все для дома', icon: '🛋️', color: '#722ed1' },
-    { id: 6, name: 'Продукты', icon: '🥬', color: '#52c41a' },
-    { id: 7, name: 'Электроника', icon: '💻', color: '#13c2c2' },
-    { id: 8, name: 'Детское', icon: '🧸', color: '#fa8c16' },
-    { id: 9, name: 'Спорт и отдых', icon: '🏋️', color: '#2f54eb' },
-    { id: 10, name: 'Кафе и рестораны', icon: '☕', color: '#fa541c' },
-    { id: 11, name: 'Транспорт', icon: '🚗', color: '#1890ff' },
-    { id: 12, name: 'Образование', icon: '📚', color: '#722ed1' },
+    { id: 1, name: 'Все компании', icon: '/src/Resources/Images/cat_all.png', color: '#faad14' },
+    { id: 2, name: 'Еда и напитки', icon: '/src/Resources/Images/cat_food.png', color: '#ff4d4f' },
+    { id: 3, name: 'Одежда и обувь', icon: '/src/Resources/Images/cat_clothes.png', color: '#1890ff' },
+    { id: 4, name: 'Красота', icon: '/src/Resources/Images/cat_beauty.png', color: '#eb2f96' },
+    { id: 5, name: 'Все для дома', icon: '/src/Resources/Images/cat_home.png', color: '#722ed1' },
+    { id: 6, name: 'Продукты', icon: '/src/Resources/Images/category_products.png', color: '#52c41a' },
+    { id: 7, name: 'Электроника', icon: '/src/Resources/Images/cat_electronics.png', color: '#13c2c2' },
+    { id: 8, name: 'Детское', icon: '/src/Resources/Images/cat_kids.png', color: '#fa8c16' },
+    { id: 9, name: 'Спорт и отдых', icon: '/src/Resources/Images/cat_sport.png', color: '#2f54eb' },
+    { id: 10, name: 'Кафе и рестораны', icon: '/src/Resources/Images/category_cafe.png', color: '#fa541c' },
+    { id: 11, name: 'Транспорт', icon: '/src/Resources/Images/category_transport.png', color: '#1890ff' },
+    { id: 12, name: 'Образование', icon: '/src/Resources/Images/category_education.png', color: '#722ed1' },
   ]
 
   return (
@@ -31,7 +31,7 @@ const CategoriesPage: React.FC = () => {
           placeholder="Поиск по компаниям"
           prefix={<SearchOutlined />}
           suffix={
-            <span style={{ color: '#52c41a', cursor: 'pointer' }}>🗺️</span>
+            <img src="/src/Resources/Images/map_category_icon.png" alt="Map" style={{ width: 20, height: 20, cursor: 'pointer' }} />
           }
           className="search-input"
         />
@@ -53,7 +53,7 @@ const CategoriesPage: React.FC = () => {
                 className="category-icon-wrapper"
                 style={{ backgroundColor: `${category.color}20` }}
               >
-                <span className="category-icon">{category.icon}</span>
+                <img src={category.icon} alt={category.name} className="category-icon" style={{ width: 40, height: 40, objectFit: 'contain' }} />
               </div>
               <Text className="category-name">{category.name}</Text>
             </Card>

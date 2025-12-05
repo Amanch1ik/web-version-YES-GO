@@ -1,0 +1,75 @@
+.finik-settings-page {
+  padding: 16px;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.finik-settings-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.finik-settings-back-button {
+  font-size: 20px;
+  margin-right: 12px;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.3s;
+}
+
+.finik-settings-back-button:hover {
+  color: #52c41a;
+}
+
+.finik-settings-title {
+  margin: 0;
+  color: #333;
+}
+
+.finik-settings-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.finik-settings-info {
+  padding: 8px;
+}
+
+.finik-settings-keys-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.finik-settings-empty {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .finik-settings-page {
+    padding: 12px;
+  }
+
+  .finik-settings-keys-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+

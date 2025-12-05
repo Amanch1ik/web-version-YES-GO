@@ -117,8 +117,10 @@
 }
 
 .coins-illustration {
-  font-size: 48px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 .quick-actions {
@@ -244,8 +246,10 @@
 }
 
 .promo-image {
-  font-size: 64px;
-  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .category-card {
@@ -311,14 +315,18 @@
 }
 
 .partner-logo {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  animation: fadeInScale 0.4s ease-out both;
 }
 
+.partner-logo:nth-child(1) { animation-delay: 0.1s; }
+.partner-logo:nth-child(2) { animation-delay: 0.2s; }
+.partner-logo:nth-child(3) { animation-delay: 0.3s; }
+.partner-logo:nth-child(4) { animation-delay: 0.4s; }
+
 .partner-logo:hover {
-  transform: scale(1.1);
-}
-  min-width: 64px;
-  cursor: pointer;
+  transform: scale(1.15) translateY(-4px);
+  filter: drop-shadow(0 4px 8px rgba(82, 196, 26, 0.3));
 }
 

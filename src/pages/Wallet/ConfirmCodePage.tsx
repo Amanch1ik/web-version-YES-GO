@@ -66,7 +66,7 @@ const ConfirmCodePage: React.FC = () => {
         <div className="mbank-logo-small">
           <div className="mbank-logo-bg-small">
             <span className="mbank-logo-m-small">M</span>
-            <span className="mbank-logo-star-small">❄</span>
+            <span className="mbank-logo-star-small">★</span>
           </div>
         </div>
         <Title level={4} className="confirm-code-title">
