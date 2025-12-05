@@ -350,19 +350,9 @@ npm cache clean --force
 rm -rf node_modules package-lock.json
 
 # Переустановите зависимости
-npm install
+npm instal
 ```
 
-### Проблемы со сборкой
-
-Если сборка не работает:
-
-```bash
-# Проверьте версию Node.js (должна быть 18+)
-node --version
-
-# Очистите кэш Vite
-rm -rf node_modules/.vite
 
 # Пересоберите проект
 npm run build
