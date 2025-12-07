@@ -1,4 +1,4 @@
-# 🚀 YESS Go - Web Version
+# 🚀 YESS!GO - Web Version ver.1
 
 <div align="center">
 
