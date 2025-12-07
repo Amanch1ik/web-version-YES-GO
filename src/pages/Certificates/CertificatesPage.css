@@ -21,17 +21,16 @@
   font-weight: 600;
 }
 
-.certificates-content-card {
-  border-radius: 16px;
-  min-height: 400px;
+.certificates-empty-wrapper {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding-top: 120px;
 }
 
 .empty-description {
-  color: #999;
+  color: #bfbfbf;
   font-size: 16px;
 }
 
@@ -47,9 +46,5 @@
 }
 
 @media (max-width: 768px) {
-  .certificates-content-card {
-    border-radius: 0;
-    margin: 0 -16px;
-  }
 }
 

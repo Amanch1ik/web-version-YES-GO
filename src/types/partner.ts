@@ -3,6 +3,7 @@ export interface Partner {
   name: string
   description?: string
   logo?: string
+  cashbackPercent?: number
   address?: string
   phone?: string
   isActive: boolean

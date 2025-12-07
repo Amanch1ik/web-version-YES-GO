@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
-import { Typography, Button, Slider, Space, message, Modal } from 'antd'
+import { Typography, Button, Slider, Space, message, Modal, QRCode } from 'antd'
 import { ArrowLeftOutlined, QrcodeOutlined, PictureOutlined, ThunderboltOutlined, CloseOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import jsQR from 'jsqr'
 import './QRScannerPage.css'
 
 const { Title, Text } = Typography
@@ -14,9 +15,12 @@ const QRScannerPage: React.FC = () => {
   const [flashlight, setFlashlight] = useState(false)
   const [showMyQR, setShowMyQR] = useState(false)
   const [scanning, setScanning] = useState(false)
+  const [scannedData, setScannedData] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
+  const scanIntervalRef = useRef<number | null>(null)
 
   // Генерируем QR код для пользователя
   const userQRData = user?.id ? `yess://user/${user.id}` : 'yess://app'
@@ -27,12 +31,60 @@ const QRScannerPage: React.FC = () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop())
       }
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current)
+      }
     }
   }, [])
+
+  const scanQRCode = () => {
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    if (!video || !canvas || video.readyState !== video.HAVE_ENOUGH_DATA) {
+      return
+    }
+
+    const context = canvas.getContext('2d')
+    if (!context) return
+
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    context.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
+    const code = jsQR(imageData.data, imageData.width, imageData.height)
+
+    if (code) {
+      setScannedData(code.data)
+      handleStopScan()
+      message.success('QR код успешно отсканирован!')
+      
+      // Обработка отсканированных данных
+      if (code.data.startsWith('yess://')) {
+        // Обработка внутренних ссылок приложения
+        const url = new URL(code.data.replace('yess://', 'https://'))
+        if (url.pathname.startsWith('/user/')) {
+          const userId = url.pathname.split('/user/')[1]
+          message.info(`Найден пользователь: ${userId}`)
+        }
+      } else if (code.data.startsWith('http://') || code.data.startsWith('https://')) {
+        // Открываем URL в новой вкладке
+        window.open(code.data, '_blank')
+      } else {
+        // Показываем данные в модальном окне
+        Modal.info({
+          title: 'Отсканированные данные',
+          content: code.data,
+          okText: 'Закрыть',
+        })
+      }
+    }
+  }
 
   const handleStartScan = async () => {
     try {
       setScanning(true)
+      setScannedData(null)
       const constraints: MediaStreamConstraints = {
         video: { 
           facingMode: 'environment'
@@ -42,7 +94,10 @@ const QRScannerPage: React.FC = () => {
       streamRef.current = stream
       if (videoRef.current) {
         videoRef.current.srcObject = stream
-        videoRef.current.play()
+        await videoRef.current.play()
+        
+        // Начинаем сканирование каждые 100ms
+        scanIntervalRef.current = window.setInterval(scanQRCode, 100)
       }
       message.success('Камера активирована')
     } catch (error) {
@@ -52,6 +107,10 @@ const QRScannerPage: React.FC = () => {
   }
 
   const handleStopScan = () => {
+    if (scanIntervalRef.current) {
+      clearInterval(scanIntervalRef.current)
+      scanIntervalRef.current = null
+    }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop())
       streamRef.current = null
@@ -69,9 +128,38 @@ const QRScannerPage: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      // Здесь можно добавить обработку изображения для сканирования QR
       message.info('Обработка изображения...')
-      // В реальном приложении здесь будет библиотека для сканирования QR из изображения
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const context = canvas.getContext('2d')
+          if (!context) {
+            message.error('Не удалось обработать изображение')
+            return
+          }
+          canvas.width = img.width
+          canvas.height = img.height
+          context.drawImage(img, 0, 0)
+          const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
+          const code = jsQR(imageData.data, imageData.width, imageData.height)
+          
+          if (code) {
+            setScannedData(code.data)
+            message.success('QR код найден в изображении!')
+            Modal.info({
+              title: 'Отсканированные данные',
+              content: code.data,
+              okText: 'Закрыть',
+            })
+          } else {
+            message.error('QR код не найден в изображении')
+          }
+        }
+        img.src = event.target?.result as string
+      }
+      reader.readAsDataURL(file)
     }
   }
 
@@ -95,6 +183,7 @@ const QRScannerPage: React.FC = () => {
       </div>
 
       <div className="qr-scanner-content">
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
         {scanning ? (
           <div className="qr-scanner-video-container">
             <video
@@ -229,22 +318,23 @@ const QRScannerPage: React.FC = () => {
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <Title level={4}>Мой QR код</Title>
           <div style={{ 
-            width: 200, 
-            height: 200, 
+            width: 250, 
+            height: 250, 
             margin: '20px auto',
-            background: '#f5f5f5',
+            background: '#fff',
             border: '2px solid #52c41a',
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            flexDirection: 'column',
-            gap: '12px'
+            padding: '16px'
           }}>
-            <QrcodeOutlined style={{ fontSize: 80, color: '#52c41a' }} />
-            <Text type="secondary" style={{ fontSize: '12px' }}>
-              QR код
-            </Text>
+            <QRCode 
+              value={userQRData} 
+              size={218}
+              color="#52c41a"
+              icon="/src/Resources/Splash/splash.svg"
+            />
           </div>
           <Text type="secondary" style={{ display: 'block', marginBottom: '16px' }}>
             Поделитесь этим QR кодом с друзьями

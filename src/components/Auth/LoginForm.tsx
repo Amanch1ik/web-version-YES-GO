@@ -14,39 +14,48 @@ const LoginForm: React.FC = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: (data: LoginRequest) => authService.login(data),
     onSuccess: async (data) => {
-      // Проверяем, что данные сохранились в localStorage (должны быть уже из authService.login)
-      const token = localStorage.getItem('yess_token')
-      const user = localStorage.getItem('yess_user')
-      
-      if (!token || !user) {
-        // Повторно сохраняем
+      try {
+        // Убеждаемся, что данные сохранены в localStorage
+        // authService.login уже сохранил данные, но перепроверяем
         const { setToken, setUser } = await import('@/utils/storage')
         setToken(data.token)
         setUser(data.user)
-      }
-      
-      // Обновляем состояние авторизации через контекст СИНХРОННО
-      updateUser(data.user)
-      
-      message.success({
-        content: 'Успешный вход!',
-        duration: 1.5,
-      })
-      
-      // Небольшая задержка для гарантии обновления состояния
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
-      // Проверяем финальное состояние перед навигацией
-      const finalToken = localStorage.getItem('yess_token')
-      const finalUser = localStorage.getItem('yess_user')
-      
-      if (finalToken && finalUser) {
-        // Даем дополнительное время на обновление состояния перед навигацией
+        
+        // Синхронная проверка сразу после сохранения
+        const savedToken = localStorage.getItem('yess_token')
+        const savedUser = localStorage.getItem('yess_user')
+        
+        if (!savedToken || !savedUser) {
+          message.error('Ошибка сохранения данных авторизации')
+          return
+        }
+        
+        // Обновляем состояние авторизации через контекст СИНХРОННО
+        updateUser(data.user)
+        
+        message.success({
+          content: 'Успешный вход!',
+          duration: 1,
+        })
+        
+        // Используем navigate вместо window.location для более плавной навигации
+        // PrivateRoute теперь проверяет только localStorage, поэтому данные будут видны сразу
         setTimeout(() => {
-          navigate('/', { replace: true })
-        }, 200)
-      } else {
-        message.error('Ошибка сохранения данных авторизации')
+          // Финальная проверка перед навигацией
+          const finalToken = localStorage.getItem('yess_token')
+          const finalUser = localStorage.getItem('yess_user')
+          
+          if (finalToken && finalUser) {
+            // Используем navigate с replace для предотвращения возврата назад
+            // PrivateRoute проверит localStorage синхронно и разрешит доступ
+            navigate('/', { replace: true })
+          } else {
+            message.error('Ошибка: данные авторизации не найдены')
+          }
+        }, 100)
+      } catch (error) {
+        console.error('Login error:', error)
+        message.error('Ошибка при входе в систему')
       }
     },
     onError: (error: any) => {

@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   useEffect(() => {
+    // Проверяем авторизацию при монтировании
     checkAuth()
     
     // Проверяем авторизацию при изменении storage (для синхронизации между вкладками)
@@ -44,31 +45,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     window.addEventListener('storage', handleStorageChange)
     
-    // Проверяем при фокусе окна
+    // Проверяем при фокусе окна (только если нет данных в состоянии)
     const handleFocus = () => {
-      checkAuth()
+      if (!isAuthenticated) {
+        checkAuth()
+      }
     }
     
     window.addEventListener('focus', handleFocus)
     
-    // Периодическая проверка (каждую секунду) для надежности
-    const interval = setInterval(() => {
-      const token = getToken()
-      const userData = getUser()
-      if (token && userData && !isAuthenticated) {
-        setUserState(userData)
-        setIsAuthenticated(true)
-        setLoading(false)
-      } else if (!token && isAuthenticated) {
-        setUserState(null)
-        setIsAuthenticated(false)
-      }
-    }, 1000)
-    
     return () => {
       window.removeEventListener('storage', handleStorageChange)
       window.removeEventListener('focus', handleFocus)
-      clearInterval(interval)
     }
   }, [checkAuth, isAuthenticated])
 
@@ -77,11 +65,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const token = getToken()
     
     if (token && userData) {
-      // Сначала обновляем localStorage
-      setUser(userData)
+      // Сначала обновляем localStorage (если еще не обновлено)
+      const currentUser = getUser()
+      if (!currentUser || currentUser.id !== userData.id) {
+        setUser(userData)
+      }
       
       // Затем обновляем состояние СИНХРОННО и СРАЗУ
-      setUserState(userData)
+      // Используем функциональное обновление для гарантии
+      setUserState((prev) => {
+        // Если данные уже есть и совпадают, возвращаем их
+        if (prev?.id === userData.id) {
+          return prev
+        }
+        return userData
+      })
       setIsAuthenticated(true)
       setLoading(false)
     } else {

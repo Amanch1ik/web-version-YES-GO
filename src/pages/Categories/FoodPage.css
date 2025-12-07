@@ -1,0 +1,204 @@
+.food-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 16px 16px 80px;
+}
+
+.food-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.food-back-button,
+.food-cart-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  border: none;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.food-cart-button img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.food-title {
+  margin: 0 !important;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.food-search {
+  margin-bottom: 12px;
+}
+
+.food-search-input {
+  border-radius: 16px !important;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  height: 44px;
+}
+
+.food-search-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.food-chips-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.food-chips-row::-webkit-scrollbar {
+  display: none;
+}
+
+.food-chip {
+  min-width: 70px;
+  border-radius: 20px;
+  border: none;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.food-chip-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.food-chip-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.food-chip-label {
+  font-size: 11px;
+}
+
+.food-section {
+  margin-bottom: 18px;
+}
+
+.food-section-header {
+  margin-bottom: 8px;
+}
+
+.food-section-title {
+  margin: 0 !important;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.food-brands-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.food-brands-row::-webkit-scrollbar {
+  display: none;
+}
+
+.food-brand-card {
+  min-width: 90px;
+  border-radius: 20px;
+  border: none;
+  background: #ffffff;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.food-brand-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.food-brand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.food-brand-discount {
+  border-radius: 999px !important;
+  font-size: 10px !important;
+  padding: 0 10px !important;
+}
+
+.food-restaurant-card {
+  border-radius: 16px !important;
+  margin-bottom: 10px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.food-restaurant-image {
+  height: 140px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.food-restaurant-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.food-restaurant-info {
+  padding: 10px 12px 12px;
+  background: #ffffff;
+}
+
+.food-restaurant-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.food-restaurant-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.food-restaurant-discount {
+  border-radius: 999px !important;
+  font-size: 10px !important;
+  padding: 0 10px !important;
+}
+
+.food-restaurant-rating {
+  font-size: 11px;
+  color: #555;
+}
+
+

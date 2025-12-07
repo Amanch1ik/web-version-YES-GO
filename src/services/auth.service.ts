@@ -31,23 +31,17 @@ export const authService = {
           },
         }
         
-        try {
-          setToken(mockUser.token)
-          setUser(mockUser.user)
-          
-          // Проверяем, что данные сохранились
-          const savedToken = localStorage.getItem('yess_token')
-          const savedUser = localStorage.getItem('yess_user')
-          
-          if (!savedToken || !savedUser) {
-            throw new Error('Failed to save to localStorage')
-          }
-        } catch (storageError) {
+        // Сохраняем данные синхронно
+        setToken(mockUser.token)
+        setUser(mockUser.user)
+        
+        // Синхронная проверка сразу после сохранения
+        const savedToken = localStorage.getItem('yess_token')
+        const savedUser = localStorage.getItem('yess_user')
+        
+        if (!savedToken || !savedUser) {
           throw new Error('Не удалось сохранить данные авторизации')
         }
-        
-        // Даем время на сохранение в localStorage
-        await new Promise(resolve => setTimeout(resolve, 100))
         
         return mockUser
       } catch (error) {
@@ -100,11 +94,17 @@ export const authService = {
           isActive: true,
         },
       }
+      // Сохраняем данные синхронно
       setToken(mockUser.token)
       setUser(mockUser.user)
       
-      // Даем время на сохранение в localStorage
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Синхронная проверка сразу после сохранения
+      const savedToken = localStorage.getItem('yess_token')
+      const savedUser = localStorage.getItem('yess_user')
+      
+      if (!savedToken || !savedUser) {
+        throw new Error('Не удалось сохранить данные авторизации')
+      }
       
       return mockUser
     }

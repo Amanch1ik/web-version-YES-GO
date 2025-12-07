@@ -125,6 +125,7 @@
   width: 100%;
   display: flex;
   gap: 12px;
+  margin-top: 8px;
 }
 
 .referral-action-button {
@@ -133,14 +134,14 @@
   border-radius: 12px;
   font-weight: 600;
   font-size: 16px;
-  background: #52c41a;
-  border-color: #52c41a;
+  background: #005c3a;
+  border-color: #005c3a;
   transition: all 0.3s;
 }
 
 .referral-action-button:hover {
-  background: #73d13d;
-  border-color: #73d13d;
+  background: #007f4f;
+  border-color: #007f4f;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
 }

@@ -1,14 +1,10 @@
-import { useState } from 'react'
-import { Card, Typography, Collapse } from 'antd'
-import { ClockCircleOutlined } from '@ant-design/icons'
+import { Typography } from 'antd'
+import { BellOutlined } from '@ant-design/icons'
 import './FeedbackPage.css'
 
 const { Title, Text } = Typography
-const { Panel } = Collapse
 
 const FeedbackPage: React.FC = () => {
-  const [activeKey, setActiveKey] = useState<string | string[]>([])
-
   const faqSections = [
     {
       key: '1',
@@ -45,7 +41,7 @@ const FeedbackPage: React.FC = () => {
   return (
     <div className="feedback-page">
       <div className="feedback-header">
-        <ClockCircleOutlined className="feedback-header-icon" />
+        <BellOutlined className="feedback-header-icon" />
         <Title level={3} className="feedback-title">
           Обратная связь
         </Title>
@@ -55,30 +51,22 @@ const FeedbackPage: React.FC = () => {
         Частые вопросы
       </Title>
 
-      <Card className="feedback-faq-card">
-        <Collapse
-          activeKey={activeKey}
-          onChange={setActiveKey}
-          className="feedback-collapse"
-          expandIconPosition="end"
-        >
-          {faqSections.map((section) => (
-            <Panel
-              key={section.key}
-              header={<Text strong>{section.title}</Text>}
-              className="feedback-panel"
-            >
-              <ul className="feedback-list">
-                {section.items.map((item, index) => (
-                  <li key={index} className="feedback-item">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-          ))}
-        </Collapse>
-      </Card>
+      <div className="feedback-list-wrapper">
+        {faqSections.map((section) => (
+          <div key={section.key} className="feedback-section">
+            <Text strong className="feedback-section-title">
+              {section.title}
+            </Text>
+            <ul className="feedback-list">
+              {section.items.map((item, index) => (
+                <li key={index} className="feedback-item">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

@@ -1,6 +1,10 @@
 .city-page {
   padding-bottom: 80px;
   animation: fadeIn 0.3s ease-in;
+  background: #f5f5f5;
+  margin: -24px -24px 0 -24px;
+  padding: 24px;
+  min-height: calc(100vh - 80px);
 }
 
 .city-header {
@@ -11,15 +15,21 @@
 }
 
 .city-back-button {
-  font-size: 20px;
-  color: #52c41a;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   cursor: pointer;
-  transition: transform 0.2s;
 }
 
-.city-back-button:hover {
-  transform: translateX(-3px);
-  color: #73d13d;
+.city-back-button img {
+  width: 20px;
+  height: 20px;
 }
 
 .city-search-input {
@@ -43,14 +53,8 @@
 .city-current-card {
   border-radius: 16px;
   margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.city-location-card:hover,
-.city-current-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: none;
+  border: 1px solid #f0f0f0;
 }
 
 .city-location-item {
@@ -60,13 +64,13 @@
 }
 
 .city-location-icon {
-  font-size: 24px;
-  color: #52c41a;
+  width: 24px;
+  height: 24px;
 }
 
 .city-pin-icon {
-  font-size: 24px;
-  color: #999;
+  width: 24px;
+  height: 24px;
 }
 
 .city-location-content {

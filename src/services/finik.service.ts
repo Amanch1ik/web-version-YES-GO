@@ -52,14 +52,7 @@ export const finikService = {
         if (keys) {
           return await createPaymentDirect(request, keys)
         }
-        // Если ключей нет, возвращаем mock ответ для демонстрации
-        const paymentId = `finik_${Date.now()}`
-        return {
-          success: true,
-          paymentId,
-          // Используем returnUrl для демо-режима
-          paymentUrl: request.returnUrl || `/wallet/finik-success?paymentId=${paymentId}&status=success&orderId=${request.orderId}`,
-        }
+        throw new Error('Finik API keys not configured')
       }
       throw error
     }
@@ -115,15 +108,7 @@ const createPaymentDirect = async (
   request: FinikPaymentRequest,
   _keys: { apiKey: string; secretKey: string }
 ): Promise<FinikPaymentResponse> => {
-  // В реальном приложении это должно быть на бэкенде
-  // Здесь мы возвращаем mock ответ для демонстрации
   // В реальном приложении здесь должен быть вызов Finik API
-  const paymentId = `finik_${Date.now()}`
-  return {
-    success: true,
-    paymentId,
-    // Используем returnUrl для демо-режима вместо реального paymentUrl
-    paymentUrl: request.returnUrl || `/wallet/finik-success?paymentId=${paymentId}&status=success&orderId=${request.orderId}`,
-  }
+  throw new Error('Direct Finik API calls are not supported. Please use backend API.')
 }
 

@@ -9,6 +9,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  assetsInclude: ['**/*.mov'],
   server: {
     port: 3000,
     proxy: {
@@ -19,7 +20,13 @@ export default defineConfig({
         rewrite: (path) => path, // Не переписываем путь, так как он уже содержит /api
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
-            console.error('Proxy error:', err.message)
+            // Подавляем ошибки прокси в DEV режиме, когда сервер недоступен
+            // Это нормально для разработки без запущенного бэкенда
+            // Не выводим ошибки в консоль - они обрабатываются на клиенте
+            return
+          })
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            // Логируем только успешные запросы, ошибки подавляем
           })
         },
       },

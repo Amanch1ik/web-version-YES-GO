@@ -1,115 +1,112 @@
-import { Card, List, Tag, Typography, Empty, Spin } from 'antd'
-import { useQuery } from '@tanstack/react-query'
-import { orderService } from '@/services/order.service'
-import { Order } from '@/types/order'
+import { Card, Typography, Button } from 'antd'
+import './OrdersPage.css'
 
-const { Title } = Typography
+const { Title, Text } = Typography
 
 const OrdersPage: React.FC = () => {
-  const { data: orders, isLoading, error } = useQuery({
-    queryKey: ['orders'],
-    queryFn: orderService.getOrders,
-    retry: 1,
-    refetchOnWindowFocus: false,
-  })
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'green'
-      case 'confirmed':
-        return 'blue'
-      case 'pending':
-        return 'orange'
-      case 'cancelled':
-        return 'red'
-      default:
-        return 'default'
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'Завершен'
-      case 'confirmed':
-        return 'Подтвержден'
-      case 'pending':
-        return 'В обработке'
-      case 'cancelled':
-        return 'Отменен'
-      default:
-        return status
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    try {
-      return new Date(dateString).toLocaleString('ru-RU', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    } catch {
-      return dateString
-    }
-  }
-
   return (
-    <div>
-      <Title level={2}>Мои заказы</Title>
-      {isLoading ? (
-        <div style={{ textAlign: 'center', padding: '40px' }}>
-          <Spin size="large" />
-        </div>
-      ) : error ? (
-        <Empty description="Не удалось загрузить заказы" />
-      ) : orders && orders.length === 0 ? (
-        <Empty description="У вас пока нет заказов" />
-      ) : (
-        <List
-          dataSource={orders}
-          renderItem={(order: Order) => (
-            <Card style={{ marginBottom: 16 }}>
-              <List.Item>
-                <List.Item.Meta
-                  title={`Заказ #${order.id.slice(0, 8)}`}
-                  description={
-                    <div>
-                      <div style={{ marginBottom: 4 }}>Партнер: {order.partnerName}</div>
-                      <div>
-                        Создан: {formatDate(order.createdAt)}
-                      </div>
-                      {order.products && order.products.length > 0 && (
-                        <div style={{ marginTop: 8 }}>
-                          <strong>Товары:</strong>
-                          <ul style={{ marginTop: 4, marginBottom: 0 }}>
-                            {order.products.map((product, index) => (
-                              <li key={index}>
-                                {product.productName} - {product.quantity} шт. × {product.price} сом
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  }
-                />
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ marginBottom: 8, fontSize: '18px' }}>
-                    <strong>{order.totalAmount} сом</strong>
-                  </div>
-                  <Tag color={getStatusColor(order.status)}>
-                    {getStatusText(order.status)}
-                  </Tag>
+    <div className="cart-page">
+      <div className="cart-header">
+        <Title level={3} className="cart-title">
+          Корзина
+        </Title>
+      </div>
+
+      <div className="cart-list">
+        {/* WHYCOOK */}
+        <Card className="cart-partner-card" variant="borderless">
+          <div className="cart-partner-header">
+            <div className="cart-partner-logo">
+              <img src="/src/Resources/Images/Frame 20 (1).png" alt="WHYCOOK" />
+            </div>
+            <div className="cart-partner-name">WHYCOOK</div>
+          </div>
+
+          <div className="cart-item">
+            <div className="cart-item-image">
+              <img src="/src/Resources/Images/Frame 20 (1).png" alt="Курица по-тайски" />
+              <span className="cart-discount-pill">-30 %</span>
+            </div>
+            <div className="cart-item-body">
+              <Text className="cart-item-title">Курица по-тайски 300 г</Text>
+              <Text className="cart-item-desc">
+                Куриное крыло, мука пшеничная высший сорт, рис, сливки, специи.
+              </Text>
+              <div className="cart-item-footer">
+                <div className="cart-price-line">
+                  <span className="cart-old-price">250 сом</span>
+                  <span className="cart-main-price">
+                    200 сом + 58 Yess!Coins
+                  </span>
                 </div>
-              </List.Item>
-            </Card>
-          )}
-        />
-      )}
+                <div className="cart-qty">
+                  <button type="button" className="cart-qty-btn">-</button>
+                  <span className="cart-qty-value">1</span>
+                  <button type="button" className="cart-qty-btn">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="cart-partner-total">
+            Итого : 200 сом + 58 Yess!Coins
+          </div>
+
+          <div className="cart-partner-actions">
+            <Button type="primary" className="cart-go-order-btn">
+              Перейти к заказу
+            </Button>
+            <div className="cart-discount-info">Скидка 35 %</div>
+          </div>
+        </Card>
+
+        {/* TECHFIRE */}
+        <Card className="cart-partner-card" variant="borderless">
+          <div className="cart-partner-header">
+            <div className="cart-partner-logo">
+              <img src="/src/Resources/Images/appicon_images.png" alt="TECHFIRE" />
+            </div>
+            <div className="cart-partner-name">TECHFIRE</div>
+          </div>
+
+          <div className="cart-item">
+            <div className="cart-item-image">
+              <img src="/src/Resources/Images/image 183.png" alt="iPhone 17 Pro" />
+              <span className="cart-discount-pill">-30 %</span>
+            </div>
+            <div className="cart-item-body">
+              <Text className="cart-item-title">Apple iPhone 17 Pro 256GB</Text>
+              <Text className="cart-item-desc">
+                Экран 6.3&quot; OLED ProMotion • Камера 48 МП Pro+ UltraWide + Telephoto • Чип A18 Pro
+              </Text>
+              <div className="cart-item-footer">
+                <div className="cart-price-line">
+                  <span className="cart-old-price">160 000 сом</span>
+                  <span className="cart-main-price">
+                    130 000 сом + 30 000 Yess!Coins
+                  </span>
+                </div>
+                <div className="cart-qty">
+                  <button type="button" className="cart-qty-btn">-</button>
+                  <span className="cart-qty-value">1</span>
+                  <button type="button" className="cart-qty-btn">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="cart-partner-total">
+            Итого : 130 000 сом + 30 000 Yess!Coins
+          </div>
+
+          <div className="cart-partner-actions">
+            <Button type="primary" className="cart-go-order-btn">
+              Перейти к заказу
+            </Button>
+            <div className="cart-discount-info">Скидка 35 %</div>
+          </div>
+        </Card>
+      </div>
     </div>
   )
 }

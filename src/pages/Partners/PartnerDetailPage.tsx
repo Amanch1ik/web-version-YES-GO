@@ -1,16 +1,15 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { 
-  Card, 
-  Avatar, 
-  Typography, 
-  Button, 
-  Tabs, 
-  Rate, 
+import {
+  Card,
+  Avatar,
+  Typography,
+  Button,
+  Tabs,
+  Rate,
   Badge,
   Row,
   Col,
-  List
 } from 'antd'
 import { 
   ArrowLeftOutlined
@@ -21,28 +20,6 @@ import { Partner, Product, Review } from '@/types/partner'
 import './PartnerDetailPage.css'
 
 const { Title, Text } = Typography
-
-// Моковые данные для отзывов (в реальном приложении будут приходить с API)
-const mockReviews: Review[] = [
-  {
-    id: '1',
-    partnerId: '1',
-    userId: '1',
-    userName: 'Айтбеков Аманбол',
-    rating: 5,
-    text: 'Недавно купил у вас IPHONE 14 Pro очень понравился камера бомба',
-    createdAt: '2025-11-08T17:44:00Z',
-  },
-  {
-    id: '2',
-    partnerId: '1',
-    userId: '2',
-    userName: 'Канай',
-    rating: 4,
-    text: 'Купил наушники вчера, очень хорошее качество звука, всем советую',
-    createdAt: '2025-11-08T17:44:00Z',
-  },
-]
 
 const PartnerDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -65,7 +42,27 @@ const PartnerDetailPage: React.FC = () => {
     enabled: !!id && activeTab === 'products',
   })
 
-  const reviews = mockReviews.filter(r => r.partnerId === id)
+  // Временные отзывы по дизайну, пока нет API
+  const reviews: Review[] = [
+    {
+      id: '1',
+      partnerId: id || '1',
+      userId: 'u1',
+      userName: 'Айтбеков Аманбол',
+      rating: 5,
+      text: 'Недавно купил у вас IPHONE 14 Pro очень понравился камера бомба',
+      createdAt: '2025-11-08T17:44:00',
+    },
+    {
+      id: '2',
+      partnerId: id || '1',
+      userId: 'u2',
+      userName: 'Канай',
+      rating: 4,
+      text: 'Купил наушники вчера, очень хорошее качество звука, всем советую',
+      createdAt: '2025-11-08T17:44:00',
+    },
+  ]
 
   if (partnerLoading) {
     return <div>Загрузка...</div>
@@ -79,11 +76,54 @@ const PartnerDetailPage: React.FC = () => {
   const discount = partner.discount || 30
   const rating = partner.rating || 5.0
   const reviewCount = partner.reviewCount || 1365
+  const partnerNameLower = partner.name.toLowerCase()
+
+  const headerImage = partnerNameLower.includes('whycook')
+    ? '/src/Resources/Images/Frame 20 (1).png'
+    : partnerNameLower.includes('techfire')
+    ? '/src/Resources/Images/Dashboard.png'
+    : '/src/Resources/Images/banner_2.png'
+
+  const fallbackProducts: Product[] = partnerNameLower.includes('whycook')
+    ? [
+        {
+          id: 'whycook-1',
+          partnerId: partner.id,
+          name: 'Курица по-тайски 300 г',
+          description:
+            'Куриное крыло, мука пшеничная высший сорт, рис, сливки, специи.',
+          price: 200,
+          originalPrice: 250,
+          image: '/src/Resources/Images/Frame 20 (1).png',
+          category: 'Еда',
+          isAvailable: true,
+          discount: 30,
+          yessCoins: 58,
+        },
+        {
+          id: 'whycook-2',
+          partnerId: partner.id,
+          name: 'Курица в кисло-сладком соусе 420 г',
+          description:
+            'Курица в кисло-сладком соусе, рис, томатный соус, кунжут.',
+          price: 150,
+          originalPrice: 200,
+          image: '/src/Resources/Images/image 185.png',
+          category: 'Еда',
+          isAvailable: true,
+          discount: 30,
+          yessCoins: 60,
+        },
+      ]
+    : []
 
   return (
     <div className="partner-detail-page">
       {/* Header with Background */}
-      <div className="partner-detail-header">
+      <div
+        className="partner-detail-header"
+        style={{ backgroundImage: `url('${headerImage}')` }}
+      >
         <div className="partner-detail-header-content">
           <Button
             type="text"
@@ -232,6 +272,63 @@ const PartnerDetailPage: React.FC = () => {
                         </Col>
                       ))}
                     </Row>
+                  ) : fallbackProducts.length > 0 ? (
+                    <Row gutter={[16, 16]}>
+                      {fallbackProducts.map((product) => (
+                        <Col xs={24} sm={12} key={product.id}>
+                          <Card
+                            hoverable
+                            className="product-card"
+                            cover={
+                              product.image ? (
+                                <img alt={product.name} src={product.image} />
+                              ) : (
+                                <div className="product-image-placeholder">
+                                  {product.name?.[0] || 'P'}
+                                </div>
+                              )
+                            }
+                          >
+                            <div className="product-badge">
+                              {product.discount && (
+                                <Badge count={`-${product.discount}%`} style={{ backgroundColor: '#52c41a' }} />
+                              )}
+                            </div>
+                            <Title level={5} className="product-name">
+                              {product.name}
+                            </Title>
+                            {product.description && (
+                              <Text className="product-description" ellipsis>
+                                {product.description}
+                              </Text>
+                            )}
+                            <div className="product-price">
+                              {product.originalPrice && (
+                                <Text delete className="product-original-price">
+                                  {product.originalPrice.toLocaleString()} сом
+                                </Text>
+                              )}
+                              <Text className="product-current-price">
+                                {product.price.toLocaleString()} сом
+                              </Text>
+                              {product.yessCoins && (
+                                <Text className="product-coins">
+                                  + {product.yessCoins.toLocaleString()} Yess!Coins
+                                </Text>
+                              )}
+                            </div>
+                            <Button 
+                              type="primary" 
+                              block 
+                              className="product-add-button"
+                            >
+                              <img src="/src/Resources/Eye/basket.svg" alt="Cart" style={{ width: 16, height: 16, marginRight: 8 }} />
+                              В корзину
+                            </Button>
+                          </Card>
+                        </Col>
+                      ))}
+                    </Row>
                   ) : (
                     <div className="empty-state">Товары не найдены</div>
                   )}
@@ -243,43 +340,38 @@ const PartnerDetailPage: React.FC = () => {
               label: 'Отзывы',
               children: (
                 <>
-                  <List
-                    dataSource={reviews}
-                    renderItem={(review) => (
-                      <List.Item className="review-item">
-                        <List.Item.Meta
-                          avatar={
-                            <Avatar size={48} icon={<span>👤</span>} />
-                          }
-                          title={
-                            <div className="review-header">
+                  <div className="partner-reviews-list">
+                    {reviews.map((review) => (
+                      <Card key={review.id} className="partner-review-card" variant="borderless">
+                        <div className="review-header">
+                          <div className="review-user">
+                            <Avatar size={40} className="review-avatar">
+                              {review.userName[0] || 'U'}
+                            </Avatar>
+                            <div className="review-user-meta">
                               <Text strong className="review-user-name">
                                 {review.userName}
                               </Text>
-                              <Rate disabled defaultValue={review.rating} allowHalf className="review-rating" />
+                              <Rate
+                                disabled
+                                defaultValue={review.rating}
+                                allowHalf
+                                className="review-rating"
+                              />
                             </div>
-                          }
-                          description={
-                            <>
-                              <Text className="review-text">{review.text}</Text>
-                              <Text className="review-date">
-                                {new Date(review.createdAt).toLocaleDateString('ru-RU', {
-                                  day: '2-digit',
-                                  month: 'long',
-                                  year: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })}
-                              </Text>
-                            </>
-                          }
-                        />
-                      </List.Item>
-                    )}
-                  />
-                  {reviews.length === 0 && (
-                    <div className="empty-state">Отзывов пока нет</div>
-                  )}
+                          </div>
+                          <Text className="review-date">
+                            {new Date(review.createdAt).toLocaleDateString('ru-RU', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                            })}
+                          </Text>
+                        </div>
+                        <Text className="review-text">{review.text}</Text>
+                      </Card>
+                    ))}
+                  </div>
                 </>
               ),
             },

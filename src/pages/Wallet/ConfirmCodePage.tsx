@@ -77,7 +77,7 @@ const ConfirmCodePage: React.FC = () => {
         </Text>
       </div>
 
-      <Card className="confirm-code-card">
+      <div className="confirm-code-content">
         <div className="confirm-code-inputs">
           {code.map((digit, index) => (
             <Input
@@ -106,14 +106,14 @@ const ConfirmCodePage: React.FC = () => {
           Подтвердить
         </Button>
 
-        <Button
-          type="link"
+        <button
+          type="button"
           className="confirm-code-resend"
           onClick={handleResend}
         >
           Отправить код еще раз
-        </Button>
-      </Card>
+        </button>
+      </div>
     </div>
   )
 }

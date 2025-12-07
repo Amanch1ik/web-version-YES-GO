@@ -1,10 +1,15 @@
 .profile-page {
   padding-bottom: 80px;
+  animation: fadeIn 0.3s ease-in;
+  background: #f5f5f5;
+  margin: -24px -24px 0 -24px;
+  padding: 24px;
+  min-height: calc(100vh - 80px);
 }
 
 /* User Profile Card */
 .profile-user-card {
-  border-radius: 12px;
+  border-radius: 16px;
   margin-bottom: 16px;
   cursor: pointer;
   transition: all 0.3s;
@@ -47,7 +52,7 @@
 
 /* Login Methods Card */
 .profile-methods-card {
-  border-radius: 12px;
+  border-radius: 16px;
   margin-bottom: 16px;
 }
 
@@ -108,7 +113,7 @@
 /* Menu List */
 .profile-menu-list {
   background: #fff;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
 }
 
@@ -130,10 +135,26 @@
 .profile-menu-icon {
   color: #666;
   font-size: 20px;
-  width: 24px;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  background: #f5f5f5;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.profile-menu-icon img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  transition: all 0.3s ease;
+}
+
+.profile-menu-item:hover .profile-menu-icon img {
+  transform: scale(1.1);
+  filter: drop-shadow(0 2px 4px rgba(82, 196, 26, 0.3));
 }
 
 .profile-menu-arrow {
@@ -143,8 +164,13 @@
 
 /* Logout Modal */
 .logout-modal .ant-modal-content {
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: 20px;
+  padding: 24px 20px 20px;
+  background: #f5f5f5;
+}
+
+.logout-modal .ant-modal-close {
+  display: none;
 }
 
 .logout-modal-content {

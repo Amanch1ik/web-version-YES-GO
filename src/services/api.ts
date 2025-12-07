@@ -34,8 +34,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      removeToken()
-      window.location.href = '/login'
+      // В DEV режиме не редиректим на логин, так как используем моковые данные
+      // и реальные запросы могут не работать
+      if (!isDev) {
+        removeToken()
+        window.location.href = '/login'
+      }
+      // В DEV режиме просто возвращаем ошибку без редиректа
     } else if (!error.response) {
       // Обработка CORS и сетевых ошибок
       if (error.code === 'ERR_NETWORK' || 
@@ -56,15 +61,7 @@ api.interceptors.response.use(
       // Подавляем вывод в консоль, перехватывая ошибку
       const silentError = new Error('Server error')
       silentError.name = 'SilentError'
-      // Подавляем вывод ошибки в консоль браузера
-      if (typeof window !== 'undefined' && error.config) {
-        // Перехватываем ошибку до того, как она попадет в консоль
-        const originalLog = console.error
-        console.error = () => {}
-        setTimeout(() => {
-          console.error = originalLog
-        }, 0)
-      }
+      // Не логируем ошибку - она будет подавлена на уровне main.tsx
       return Promise.reject(silentError)
     }
     return Promise.reject(error)

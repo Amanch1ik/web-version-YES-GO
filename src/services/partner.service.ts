@@ -2,8 +2,7 @@ import api from './api'
 import { API_ENDPOINTS } from '@/config/api'
 import { Partner, Product } from '@/types/partner'
 
-// Моковые данные для fallback
-const mockPartners: Partner[] = []
+const isDev = import.meta.env.DEV || import.meta.env.VITE_DEV_MODE === 'true'
 
 export const partnerService = {
   getPartners: async (): Promise<Partner[]> => {
@@ -11,10 +10,17 @@ export const partnerService = {
       const response = await api.get<Partner[]>(API_ENDPOINTS.PARTNERS)
       return response.data
     } catch (error: any) {
-      // Если ошибка 500 или сервер недоступен, возвращаем моковые данные
-      // Подавляем ошибки 500, чтобы они не попадали в консоль
-      if (error?.name === 'SilentError' || error?.response?.status >= 500 || !error?.response || error?.response?.status === 0) {
-        return mockPartners
+      // В DEV режиме возвращаем пустой массив вместо ошибки
+      if (isDev && (
+        error.response?.status === 401 || 
+        error.response?.status === 404 || 
+        error.response?.status === 500 || 
+        !error.response ||
+        error.code === 'ECONNREFUSED' ||
+        error.message?.includes('ECONNREFUSED') ||
+        error.message?.includes('Network Error')
+      )) {
+        return []
       }
       throw error
     }
@@ -27,9 +33,16 @@ export const partnerService = {
       )
       return response.data
     } catch (error: any) {
-      // Если ошибка 500 или сервер недоступен, возвращаем пустой массив
-      // Подавляем ошибки 500, чтобы они не попадали в консоль
-      if (error?.name === 'SilentError' || error?.response?.status >= 500 || !error?.response || error?.response?.status === 0) {
+      // В DEV режиме возвращаем пустой массив вместо ошибки
+      if (isDev && (
+        error.response?.status === 401 || 
+        error.response?.status === 404 || 
+        error.response?.status === 500 || 
+        !error.response ||
+        error.code === 'ECONNREFUSED' ||
+        error.message?.includes('ECONNREFUSED') ||
+        error.message?.includes('Network Error')
+      )) {
         return []
       }
       throw error

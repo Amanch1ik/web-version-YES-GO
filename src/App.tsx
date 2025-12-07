@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth } from './contexts/AuthContext'
 import SplashScreen from './components/Splash/SplashScreen'
 import WelcomeScreen from './components/Welcome/WelcomeScreen'
 import AppLayout from './components/Layout/AppLayout'
@@ -10,6 +9,8 @@ import WalletPage from './pages/Wallet/WalletPage'
 import PartnersPage from './pages/Partners/PartnersPage'
 import PartnerDetailPage from './pages/Partners/PartnerDetailPage'
 import CategoriesPage from './pages/Categories/CategoriesPage'
+import ElectronicsPage from './pages/Categories/ElectronicsPage'
+import FoodPage from './pages/Categories/FoodPage'
 import OrdersPage from './pages/Orders/OrdersPage'
 import ProfilePage from './pages/Profile/ProfilePage'
 import ProfileDetailPage from './pages/Profile/ProfileDetailPage'
@@ -27,42 +28,35 @@ import FinikPaymentPage from './pages/Wallet/FinikPaymentPage'
 import FinikSuccessPage from './pages/Wallet/FinikSuccessPage'
 import FinikSettingsPage from './pages/Settings/FinikSettingsPage'
 import SocialPage from './pages/Social/SocialPage'
+import StoriesPage from './pages/Social/StoriesPage'
 import QRScannerPage from './pages/QR/QRScannerPage'
 import { Spin } from 'antd'
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, loading, refreshAuth } = useAuth()
-
-  // Дополнительная проверка токена в localStorage (синхронно)
+  // Проверяем токен в localStorage СИНХРОННО - это единственный источник истины
+  // Не полагаемся на состояние AuthContext, так как оно может быть не синхронизировано
   const token = localStorage.getItem('yess_token')
-  const user = localStorage.getItem('yess_user')
+  const userStr = localStorage.getItem('yess_user')
   
-  // Проверяем наличие данных в localStorage как основной источник истины
-  const hasLocalStorageAuth = !!(token && user)
-  const hasAuth = isAuthenticated || hasLocalStorageAuth
-
-  // Если есть данные в localStorage, но состояние не синхронизировано, обновляем его
-  useEffect(() => {
-    if (hasLocalStorageAuth && !isAuthenticated && !loading) {
-      refreshAuth()
+  // Проверяем, что данные есть и валидны
+  let hasValidAuth = false
+  if (token && userStr) {
+    try {
+      const user = JSON.parse(userStr)
+      hasValidAuth = !!(user && user.id && token)
+    } catch (e) {
+      hasValidAuth = false
     }
-  }, [hasLocalStorageAuth, isAuthenticated, loading, refreshAuth])
-
-  if (loading && !hasLocalStorageAuth) {
-    // Показываем загрузку только если данных нет в localStorage
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-        <Spin size="large" />
-      </div>
-    )
+  }
+  
+  // Если есть валидные данные в localStorage, разрешаем доступ СРАЗУ
+  // Это предотвращает быстрый выход после входа
+  if (hasValidAuth) {
+    return <>{children}</>
   }
 
-  // Если есть данные в localStorage, разрешаем доступ даже если состояние еще не обновлено
-  if (!hasAuth) {
-    return <Navigate to="/login" replace />
-  }
-
-  return <>{children}</>
+  // Если данных нет, редиректим на логин
+  return <Navigate to="/login" replace />
 }
 
 function App() {
@@ -168,6 +162,26 @@ function App() {
           }
         />
         <Route
+          path="/categories/electronics"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <ElectronicsPage />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/categories/food"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <FoodPage />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/qr"
           element={
             <PrivateRoute>
@@ -268,14 +282,19 @@ function App() {
           }
         />
         <Route
+          path="/stories"
+          element={
+            <PrivateRoute>
+              <StoriesPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/notifications"
           element={
             <PrivateRoute>
               <AppLayout>
-                <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                  <h2>Уведомления</h2>
-                  <p>Нет новых уведомлений</p>
-                </div>
+                <MessagesPage />
               </AppLayout>
             </PrivateRoute>
           }

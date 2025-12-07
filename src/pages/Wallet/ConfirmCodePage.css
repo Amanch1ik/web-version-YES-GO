@@ -1,7 +1,7 @@
 .confirm-code-page {
   padding-bottom: 80px;
   animation: fadeIn 0.3s ease-in;
-  background: linear-gradient(180deg, #2d5016 0%, #52c41a 100%);
+  background: linear-gradient(180deg, #00663f 0%, #00b46f 100%);
   margin: -24px -24px 0 -24px;
   padding: 24px;
   min-height: calc(100vh - 80px);
@@ -58,10 +58,11 @@
   opacity: 0.9;
 }
 
-.confirm-code-card {
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 32px;
+.confirm-code-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
 }
 
 .confirm-code-inputs {
@@ -77,33 +78,34 @@
   text-align: center;
   font-size: 24px;
   font-weight: 600;
-  border-radius: 12px;
-  border: 2px solid #f0f0f0;
+  border-radius: 8px;
+  border: none;
+  background: #e4e4e4;
   transition: all 0.3s;
 }
 
 .confirm-code-input:focus,
 .confirm-code-input-focused {
-  border-color: #52c41a;
-  box-shadow: 0 0 0 3px rgba(82, 196, 26, 0.1);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
 }
 
 .confirm-code-button {
   height: 56px;
-  border-radius: 12px;
+  max-width: 320px;
+  border-radius: 999px;
   font-weight: 600;
   font-size: 18px;
-  background: #52c41a;
-  border-color: #52c41a;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+  background: #ffffff;
+  color: #00663f;
+  border-color: transparent;
+  margin: 0 auto 8px auto;
+  box-shadow: none;
 }
 
 .confirm-code-button:hover {
-  background: #73d13d;
-  border-color: #73d13d;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(82, 196, 26, 0.4);
+  background: #ffffff;
+  color: #00b46f;
 }
 
 .confirm-code-resend {
@@ -112,6 +114,9 @@
   color: #fff;
   font-size: 14px;
   padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .confirm-code-resend:hover {

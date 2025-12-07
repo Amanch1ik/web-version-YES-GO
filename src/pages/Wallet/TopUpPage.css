@@ -1,7 +1,7 @@
 .topup-page {
   padding-bottom: 80px;
   animation: fadeIn 0.3s ease-in;
-  background: linear-gradient(180deg, #52c41a 0%, #389e0d 100%);
+  background: linear-gradient(180deg, #00663f 0%, #00b46f 100%);
   margin: -24px -24px 0 -24px;
   padding: 24px;
   min-height: calc(100vh - 80px);
@@ -162,43 +162,60 @@
 }
 
 .topup-amount-section {
-  background: #fff;
-  border-radius: 16px;
-  padding: 20px;
+  background: transparent;
+  border-radius: 0;
+  padding: 0 0 20px 0;
   margin-bottom: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 .topup-amount-title {
   margin: 0 0 16px 0 !important;
-  color: #000;
+  color: #ffffff;
   font-weight: 600;
 }
 
-.topup-amount-group {
+.topup-amount-list {
   width: 100%;
 }
 
-.topup-amount-option {
-  display: block;
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+.topup-amount-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  background: transparent;
+  color: #ffffff;
   font-size: 16px;
-  transition: background-color 0.2s;
+  cursor: pointer;
 }
 
-.topup-amount-option:last-child {
-  border-bottom: none;
+.topup-amount-row:last-child {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
 }
 
-.topup-amount-option:hover {
-  background-color: #fafafa;
-  border-radius: 8px;
-  padding-left: 8px;
+.topup-amount-label {
+  text-align: left;
 }
 
-.topup-amount-option .ant-radio {
-  margin-right: 12px;
+.topup-amount-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topup-amount-circle-inner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
 }
 
 .topup-submit-button {

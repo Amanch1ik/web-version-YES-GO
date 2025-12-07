@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Card, Typography, Button, Row, Col, Input, Radio, Space } from 'antd'
+import { Card, Typography, Button, Row, Col, Input } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
@@ -10,7 +10,7 @@ const { Title, Text } = Typography
 
 const TopUpPage: React.FC = () => {
   const navigate = useNavigate()
-  const [selectedAmount, setSelectedAmount] = useState(100)
+  const [selectedAmount, setSelectedAmount] = useState<number | 'other'>(100)
   const [promoCode, setPromoCode] = useState('')
 
   const { data: balance } = useQuery({
@@ -21,7 +21,8 @@ const TopUpPage: React.FC = () => {
   const amounts = [1000, 800, 600, 500, 300, 100]
 
   const handleTopUp = () => {
-    navigate('/wallet/payment-method', { state: { amount: selectedAmount } })
+    const amountToPay = selectedAmount === 'other' ? 0 : selectedAmount
+    navigate('/wallet/payment-method', { state: { amount: amountToPay } })
   }
 
   return (
@@ -102,22 +103,39 @@ const TopUpPage: React.FC = () => {
         <Title level={5} className="topup-amount-title">
           Выберите сумму пополнения:
         </Title>
-        <Radio.Group
-          value={selectedAmount}
-          onChange={(e) => setSelectedAmount(e.target.value)}
-          className="topup-amount-group"
-        >
-          <Space direction="vertical" style={{ width: '100%' }}>
-            {amounts.map((amount) => (
-              <Radio key={amount} value={amount} className="topup-amount-option">
-                {amount} KGS
-              </Radio>
-            ))}
-            <Radio value="other" className="topup-amount-option">
-              Другая сумма
-            </Radio>
-          </Space>
-        </Radio.Group>
+        <div className="topup-amount-list">
+          {amounts.map((amount) => {
+            const active = selectedAmount === amount
+            return (
+              <button
+                key={amount}
+                type="button"
+                className={`topup-amount-row ${active ? 'active' : ''}`}
+                onClick={() => setSelectedAmount(amount)}
+              >
+                <span className="topup-amount-label">{amount} KGS</span>
+                <span className="topup-amount-circle">
+                  {active && <span className="topup-amount-circle-inner" />}
+                </span>
+              </button>
+            )
+          })}
+
+          <button
+            type="button"
+            className={`topup-amount-row ${
+              selectedAmount === 'other' ? 'active' : ''
+            }`}
+            onClick={() => setSelectedAmount('other')}
+          >
+            <span className="topup-amount-label">Другая сумма</span>
+            <span className="topup-amount-circle">
+              {selectedAmount === 'other' && (
+                <span className="topup-amount-circle-inner" />
+              )}
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Top Up Button */}

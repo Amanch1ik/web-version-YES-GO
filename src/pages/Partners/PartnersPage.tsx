@@ -1,12 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Input, Card, List, Avatar, Typography, Button, Space, Badge } from 'antd'
-import { 
-  SearchOutlined, 
-  MenuOutlined, 
-  ShoppingCartOutlined, 
-  EnvironmentOutlined
-} from '@ant-design/icons'
+import { Input, Card, List, Typography, Button } from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import { partnerService } from '@/services/partner.service'
 import { Partner } from '@/types/partner'
@@ -17,7 +11,13 @@ const { Text } = Typography
 const PartnersPage: React.FC = () => {
   const navigate = useNavigate()
   const [searchValue, setSearchValue] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('Красота')
+  const [activeFilter, setActiveFilter] = useState<string | null>(null)
+
+  const categoryFilters = [
+    { key: 'beauty', label: 'Красота' },
+    { key: 'food', label: 'Еда и напитки' },
+    { key: 'products', label: 'Продукты' },
+  ]
 
   const { data: partners, isLoading, error } = useQuery({
     queryKey: ['partners'],
@@ -26,63 +26,115 @@ const PartnersPage: React.FC = () => {
     refetchOnWindowFocus: false,
   })
 
-  const categories = ['Красота', 'Еда и напитки', 'Продукты']
-
-  // Моковые данные для процентов (в реальном приложении будут приходить с API)
-  const getCashbackPercent = (partnerId: string) => {
-    const percents: { [key: string]: number } = {
-      '1': 10,
-      '2': 8,
-      '3': 1,
-    }
-    return percents[partnerId] || Math.floor(Math.random() * 10) + 1
-  }
-
   const getPartnerIcon = (partnerName: string) => {
-    // Простая логика для иконок
-    if (partnerName.includes('Фармамир')) return <img src="/src/Resources/Images/category_products.png" alt="Shop" style={{ width: 24, height: 24 }} />
-    if (partnerName.includes('Кофе')) return <img src="/src/Resources/Images/category_cafe.png" alt="Cafe" style={{ width: 24, height: 24 }} />
-    if (partnerName.includes('Салон')) return <img src="/src/Resources/Images/cat_beauty.png" alt="Beauty" style={{ width: 24, height: 24 }} />
-    if (partnerName.includes('Элдик')) return <img src="/src/Resources/Images/cat_electronics.png" alt="Electronics" style={{ width: 24, height: 24 }} />
-    return <img src="/src/Resources/Images/cat_all.png" alt="Shop" style={{ width: 24, height: 24 }} />
+    // Логика для иконок партнеров
+    const name = partnerName.toLowerCase()
+    if (name.includes('фармамир') || name.includes('аптека') || name.includes('медицин')) {
+      return <img src="/src/Resources/Images/category_products.png" alt="Shop" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+    }
+    if (name.includes('кофе') || name.includes('кафе') || name.includes('ресторан')) {
+      return <img src="/src/Resources/Images/category_cafe.png" alt="Cafe" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+    }
+    if (name.includes('салон') || name.includes('красота') || name.includes('косметик')) {
+      return <img src="/src/Resources/Images/cat_beauty.png" alt="Beauty" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+    }
+    if (name.includes('элдик') || name.includes('электроник') || name.includes('техник')) {
+      return <img src="/src/Resources/Images/cat_electronics.png" alt="Electronics" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+    }
+    if (name.includes('одежд') || name.includes('магазин')) {
+      return <img src="/src/Resources/Images/cat_clothes.png" alt="Clothes" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+    }
+    return <img src="/src/Resources/Images/cat_all.png" alt="Shop" style={{ width: 28, height: 28, objectFit: 'contain' }} />
   }
 
-  const filteredPartners = partners?.filter((partner: Partner) =>
-    partner.name.toLowerCase().includes(searchValue.toLowerCase())
-  ) || []
+  const filteredPartners =
+    partners
+      ?.filter((partner: Partner) =>
+        partner.name.toLowerCase().includes(searchValue.toLowerCase())
+      )
+      .filter((partner: Partner) => {
+        if (!activeFilter) return true
+        const category = partner.category?.toLowerCase() || ''
+        const name = partner.name.toLowerCase()
+
+        if (activeFilter === 'beauty') {
+          return (
+            category.includes('красот') ||
+            name.includes('салон') ||
+            name.includes('красот')
+          )
+        }
+        if (activeFilter === 'food') {
+          return (
+            category.includes('еда') ||
+            category.includes('кафе') ||
+            category.includes('ресторан') ||
+            name.includes('кафе') ||
+            name.includes('кофе')
+          )
+        }
+        if (activeFilter === 'products') {
+          return (
+            category.includes('продукт') ||
+            category.includes('супермаркет') ||
+            name.includes('супермаркет')
+          )
+        }
+        return true
+      }) || []
 
   return (
     <div className="partners-page">
-      {/* Header with Search */}
-      <div className="partners-header">
-        <MenuOutlined className="partners-menu-icon" />
-        <Input
-          size="large"
-          placeholder="Поиск"
-          prefix={<SearchOutlined style={{ color: '#52c41a' }} />}
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          className="partners-search-input"
-        />
-        <Space>
-          <Badge count={0} showZero={false}>
-            <ShoppingCartOutlined className="partners-cart-icon" />
-          </Badge>
-          <EnvironmentOutlined className="partners-location-icon" />
-        </Space>
-      </div>
+      {/* Search & filters block */}
+      <div className="partners-search-panel">
+        <div className="partners-search-row">
+          <Input
+            size="large"
+            placeholder="Поиск"
+            prefix={(
+              <img
+                src="/src/Resources/Images/search.png"
+                alt="Поиск"
+                className="partners-search-icon"
+              />
+            )}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className="partners-search-input"
+          />
+        </div>
 
-      {/* Category Filters */}
-      <div className="partners-categories">
-        {categories.map((category) => (
-          <Button
-            key={category}
-            className={`category-filter ${selectedCategory === category ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(category)}
+        <div className="partners-filters-row">
+          <button
+            type="button"
+            className="partners-menu-button"
+            onClick={() => navigate('/categories')}
           >
-            {category}
-          </Button>
-        ))}
+            <img
+              src="/src/Resources/Images/map_category_icon.png"
+              alt="Категории"
+            />
+          </button>
+
+          <div className="partners-filters">
+            {categoryFilters.map((filter) => (
+              <Button
+                key={filter.key}
+                size="small"
+                className={`partners-filter-chip ${
+                  activeFilter === filter.key ? 'active' : ''
+                }`}
+                onClick={() =>
+                  setActiveFilter((prev) =>
+                    prev === filter.key ? null : filter.key
+                  )
+                }
+              >
+                {filter.label}
+              </Button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Partners List */}
@@ -98,7 +150,18 @@ const PartnersPage: React.FC = () => {
             >
               <List.Item.Meta
                 avatar={
-                  <div style={{ width: 48, height: 48, borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#52c41a' }}>
+                  <div style={{ 
+                    width: 48, 
+                    height: 48, 
+                    borderRadius: '50%', 
+                    overflow: 'hidden', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    background: 'linear-gradient(135deg, #f0f9e8 0%, #e6f7d9 100%)',
+                    border: '2px solid #52c41a',
+                    transition: 'all 0.3s ease'
+                  }}>
                     {getPartnerIcon(partner.name)}
                   </div>
                 }
@@ -107,9 +170,11 @@ const PartnersPage: React.FC = () => {
                     <Text strong className="partner-name">
                       {partner.name}
                     </Text>
-                    <Text className="partner-cashback">
-                      до {getCashbackPercent(partner.id)}%
-                    </Text>
+                    {partner.cashbackPercent && (
+                      <Text className="partner-cashback">
+                        до {partner.cashbackPercent}%
+                      </Text>
+                    )}
                   </div>
                 }
                 description={
