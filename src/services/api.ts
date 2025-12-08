@@ -4,10 +4,10 @@ import { API_BASE_URL } from '@/config/api'
 import { getToken, removeToken } from '@/utils/storage'
 
 // В dev режиме используем прокси Vite для обхода CORS
-// В production используем прямой URL
+// В production используем прямой URL (тот же, что и мобильное приложение: https://api.yessgo.org)
 const isDev = import.meta.env.DEV
 // В dev: baseURL = '/api', endpoints начинаются с '/v1/...' -> итого '/api/v1/...'
-// В prod: baseURL = 'http://5.59.232.211:8000', endpoints начинаются с '/v1/...' -> нужно добавить '/api'
+// В prod: baseURL = 'https://api.yessgo.org', endpoints начинаются с '/v1/...' -> добавляем '/api'
 const baseURL = isDev ? '/api' : `${API_BASE_URL}/api`
 
 const api: AxiosInstance = axios.create({

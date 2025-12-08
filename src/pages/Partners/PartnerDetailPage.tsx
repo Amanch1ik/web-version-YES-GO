@@ -117,6 +117,36 @@ const PartnerDetailPage: React.FC = () => {
       ]
     : []
 
+  const handleOpenInMaps = () => {
+    const query = partner.address || partner.name
+    if (!query) return
+
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      query
+    )}`
+    window.open(url, '_blank')
+  }
+
+  const getInstagramUrl = () => {
+    const handle = partner.socialMedia?.instagram
+    if (!handle) return 'https://instagram.com'
+    if (handle.startsWith('http')) return handle
+    return `https://instagram.com/${handle.replace('@', '')}`
+  }
+
+  const getWhatsappUrl = () => {
+    const phone = partner.socialMedia?.whatsapp || partner.phone
+    if (!phone) return 'https://wa.me'
+    const digits = phone.replace(/\D/g, '')
+    return `https://wa.me/${digits}`
+  }
+
+  const getPhoneUrl = () => {
+    const phone = partner.socialMedia?.phone || partner.phone
+    if (!phone) return 'tel:'
+    return `tel:${phone.replace(/\s/g, '')}`
+  }
+
   return (
     <div className="partner-detail-page">
       {/* Header with Background */}
@@ -177,7 +207,7 @@ const PartnerDetailPage: React.FC = () => {
               <Button 
                 type="text" 
                 className="social-button"
-                onClick={() => window.open('https://instagram.com', '_blank')}
+                onClick={() => window.open(getInstagramUrl(), '_blank')}
               >
                 <img src="/src/Resources/PatnerDetailViewPage/skill_icons_instagram.svg" alt="Instagram" style={{ width: 24, height: 24 }} />
               </Button>
@@ -185,18 +215,33 @@ const PartnerDetailPage: React.FC = () => {
                 type="text" 
                 className="social-button"
                 style={{ color: '#25D366' }}
-                onClick={() => window.open('https://wa.me', '_blank')}
+                onClick={() => window.open(getWhatsappUrl(), '_blank')}
               >
                 <img src="/src/Resources/PatnerDetailViewPage/logos_whatsapp_icon.svg" alt="WhatsApp" style={{ width: 24, height: 24 }} />
               </Button>
               <Button 
                 type="text" 
                 className="social-button"
-                onClick={() => window.open('tel:', '_blank')}
+                onClick={() => window.open(getPhoneUrl(), '_blank')}
               >
                 <img src="/src/Resources/PatnerDetailViewPage/famicons_call.svg" alt="Phone" style={{ width: 24, height: 24 }} />
               </Button>
             </div>
+            {partner.address && (
+              <div className="partner-address">
+                <Typography.Paragraph className="partner-address-text">
+                  {partner.address}
+                </Typography.Paragraph>
+                <Button 
+                  type="default" 
+                  size="small" 
+                  className="partner-map-button"
+                  onClick={handleOpenInMaps}
+                >
+                  Открыть на карте
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </Card>

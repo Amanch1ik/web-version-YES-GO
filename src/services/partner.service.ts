@@ -2,7 +2,8 @@ import api from './api'
 import { API_ENDPOINTS } from '@/config/api'
 import { Partner, Product } from '@/types/partner'
 
-const isDev = import.meta.env.DEV || import.meta.env.VITE_DEV_MODE === 'true'
+// Мок-режим управляется только переменной VITE_DEV_MODE
+const isDev = import.meta.env.VITE_DEV_MODE === 'true'
 
 export const partnerService = {
   getPartners: async (): Promise<Partner[]> => {

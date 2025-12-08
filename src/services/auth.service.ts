@@ -3,15 +3,15 @@ import { API_ENDPOINTS } from '@/config/api'
 import { LoginRequest, RegisterRequest, AuthResponse } from '@/types/auth'
 import { setToken, setUser, clearStorage } from '@/utils/storage'
 
-// Функция для проверки DEV режима (вызывается каждый раз)
+// Функция для проверки мок-режима (управляется только переменной окружения)
 const checkDevMode = () => {
-  return import.meta.env.DEV || import.meta.env.VITE_DEV_MODE === 'true'
+  return import.meta.env.VITE_DEV_MODE === 'true'
 }
 
 export const authService = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
-    // Режим разработки - пропускаем проверку сервера
-    const currentDevMode = import.meta.env.DEV || import.meta.env.VITE_DEV_MODE === 'true'
+    // Мок‑режим - пропускаем запрос на сервер
+    const currentDevMode = checkDevMode()
     
     if (currentDevMode) {
       try {

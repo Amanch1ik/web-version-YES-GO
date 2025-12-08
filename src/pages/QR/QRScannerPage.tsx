@@ -3,6 +3,7 @@ import { Typography, Button, Slider, Space, message, Modal, QRCode } from 'antd'
 import { ArrowLeftOutlined, QrcodeOutlined, PictureOutlined, ThunderboltOutlined, CloseOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { walletService } from '@/services/wallet.service'
 import jsQR from 'jsqr'
 import './QRScannerPage.css'
 
@@ -37,7 +38,40 @@ const QRScannerPage: React.FC = () => {
     }
   }, [])
 
-  const scanQRCode = () => {
+  const handleRedeemQr = async (data: string) => {
+    try {
+      const response = await walletService.applyQrCode(data)
+
+      if (response.success) {
+        message.success(response.message || 'Бонусы успешно начислены')
+        Modal.info({
+          title: 'QR код обработан',
+          content: (
+            <>
+              <p>{response.message || 'Ваш QR код успешно обработан.'}</p>
+              {typeof response.addedCoins === 'number' && (
+                <p>Начислено: {response.addedCoins} Yess!Coins</p>
+              )}
+              {typeof response.newBalance === 'number' && (
+                <p>Новый баланс: {response.newBalance} Yess!Coins</p>
+              )}
+            </>
+          ),
+          okText: 'Ок',
+        })
+      } else {
+        message.error(response.message || 'Не удалось обработать QR код')
+      }
+    } catch (error: any) {
+      const errorMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Ошибка при обработке QR кода'
+      message.error(errorMsg)
+    }
+  }
+
+  const scanQRCode = async () => {
     const video = videoRef.current
     const canvas = canvasRef.current
     if (!video || !canvas || video.readyState !== video.HAVE_ENOUGH_DATA) {
@@ -55,28 +89,27 @@ const QRScannerPage: React.FC = () => {
     const code = jsQR(imageData.data, imageData.width, imageData.height)
 
     if (code) {
-      setScannedData(code.data)
+      const data = code.data
+      setScannedData(data)
       handleStopScan()
       message.success('QR код успешно отсканирован!')
       
       // Обработка отсканированных данных
-      if (code.data.startsWith('yess://')) {
+      if (data.startsWith('yess://')) {
         // Обработка внутренних ссылок приложения
-        const url = new URL(code.data.replace('yess://', 'https://'))
+        const url = new URL(data.replace('yess://', 'https://'))
         if (url.pathname.startsWith('/user/')) {
           const userId = url.pathname.split('/user/')[1]
           message.info(`Найден пользователь: ${userId}`)
+        } else {
+          message.info(`Обработана внутренняя ссылка: ${data}`)
         }
-      } else if (code.data.startsWith('http://') || code.data.startsWith('https://')) {
+      } else if (data.startsWith('http://') || data.startsWith('https://')) {
         // Открываем URL в новой вкладке
-        window.open(code.data, '_blank')
+        window.open(data, '_blank')
       } else {
-        // Показываем данные в модальном окне
-        Modal.info({
-          title: 'Отсканированные данные',
-          content: code.data,
-          okText: 'Закрыть',
-        })
+        // Пытаемся отправить QR‑код на бэкенд для начисления/обработки
+        await handleRedeemQr(data)
       }
     }
   }
