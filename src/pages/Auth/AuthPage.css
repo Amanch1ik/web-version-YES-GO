@@ -1,7 +1,7 @@
 .auth-page {
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(180deg, #2d5016 0%, #52c41a 100%);
+  background: linear-gradient(180deg, var(--primary) 0%, var(--primary-accent) 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -90,7 +90,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: #52c41a;
+  background: var(--primary);
 }
 
 .auth-content {
@@ -121,7 +121,7 @@
 }
 
 .auth-tab:hover {
-  color: #52c41a;
+  color: var(--primary);
 }
 
 .auth-tab.active {

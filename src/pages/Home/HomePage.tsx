@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 import { Row, Col, Card, Avatar, Typography, Button } from 'antd'
-import { HistoryOutlined } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/contexts/AuthContext'
 import { walletService } from '@/services/wallet.service'
@@ -27,42 +26,18 @@ const HomePage: React.FC = () => {
     refetchOnWindowFocus: false,
   })
 
-  const featuredPartners =
-    partners && partners.length > 0
-      ? partners.slice(0, 4).map((partner) => ({
-          id: partner.id,
-          name: partner.name,
-          logo: partner.logo,
-        }))
-      : [
-          {
-            id: 'static-1',
-            name: 'Supermarket',
-            logo: '/src/Resources/Images/metropub.jpg',
-          },
-          {
-            id: 'static-2',
-            name: 'Dover',
-            logo: '/src/Resources/Images/category_products.png',
-          },
-          {
-            id: 'static-3',
-            name: 'Fresh',
-            logo: '/src/Resources/Images/category_cafe.png',
-          },
-          {
-            id: 'static-4',
-            name: 'Electro',
-            logo: '/src/Resources/Images/cat_electronics.png',
-          },
-        ]
+  const featuredPartners = partners?.slice(0, 4).map((partner) => ({
+    id: partner.id,
+    name: partner.name,
+    logo: partner.logo,
+  })) || []
 
   const quickActions = [
     { icon: '/src/Resources/Images/sc_bonus.png', label: 'Бонусы', color: '#722ed1', onClick: () => navigate('/certificates') },
     { icon: '/src/Resources/Images/coin.png', label: 'Yess!Coin', color: '#faad14', onClick: () => navigate('/wallet') },
     { icon: '/src/Resources/Images/sc_we.png', label: 'Мы', color: '#1890ff', onClick: () => navigate('/social') },
     { icon: '/src/Resources/Images/sc_sale.png', label: 'Акции', color: '#722ed1', onClick: () => navigate('/stories') },
-    { icon: '/src/Resources/Images/storiespage_bday.png', label: 'ДР', color: '#eb2f96', onClick: () => navigate('/promo-code') },
+    { icon: '/src/Resources/Images/image 183.png', label: 'ДР', color: '#eb2f96', onClick: () => navigate('/promo-code') },
   ]
 
   const categories = [
@@ -104,10 +79,10 @@ const HomePage: React.FC = () => {
         <div className="home-header-content">
           <Avatar 
             size={48} 
-            src={user?.avatar || '/src/Resources/Images/profile.png'}
+            src={user?.avatarUrl || '/src/Resources/Images/profile.png'}
             className="home-avatar"
           >
-            {!user?.avatar && (user?.firstName?.[0] || user?.fullName?.[0] || user?.phone?.[0] || user?.email?.[0] || 'U')}
+            {!user?.avatarUrl && (user?.firstName?.[0] || user?.fullName?.[0] || user?.phone?.[0] || user?.email?.[0] || 'U')}
           </Avatar>
           <div className="home-user-info">
             <Title level={4} className="home-user-name">

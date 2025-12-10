@@ -1,4 +1,5 @@
-import { Form, Input, Button, message } from 'antd'
+import { useState } from 'react'
+import { Form, Input, Button, message, Divider } from 'antd'
 import { UserOutlined, PhoneOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons'
 import { useMutation } from '@tanstack/react-query'
 import { authService } from '@/services/auth.service'
@@ -10,11 +11,11 @@ import './AuthForm.css'
 const RegisterForm: React.FC = () => {
   const navigate = useNavigate()
   const { updateUser } = useAuth()
+  const [socialLoading, setSocialLoading] = useState<'google' | 'apple' | null>(null)
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: RegisterRequest) => authService.register(data),
     onSuccess: async (data) => {
-      // Обновляем состояние авторизации через контекст
       updateUser(data.user)
       
       message.success({
@@ -22,15 +23,16 @@ const RegisterForm: React.FC = () => {
         duration: 1.5,
       })
       
-      // Небольшая задержка для анимации перед переходом
       setTimeout(() => {
         navigate('/', { replace: true })
       }, 800)
     },
     onError: (error: any) => {
       if (error.code === 'ERR_NETWORK' || error.message?.includes('ERR_CONNECTION_REFUSED')) {
-        const apiUrl = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:8000'
+        const apiUrl = (import.meta as any).env?.VITE_API_BASE_URL || 'https://yessgo.org'
         message.error(`Не удалось подключиться к серверу. Убедитесь, что Backend API запущен на ${apiUrl}`)
+      } else if (error.response?.status === 502 || error.response?.status === 503 || error.response?.status === 504) {
+        message.error('Сервер временно недоступен. Попробуйте позже.')
       } else if (error.response?.status === 400) {
         const errorData = error.response?.data
         
@@ -51,6 +53,8 @@ const RegisterForm: React.FC = () => {
           const errorMsg = errorData?.title || errorData?.message || JSON.stringify(errorData) || 'Неверный формат данных'
           message.error(errorMsg)
         }
+      } else if (error.response?.status === 409) {
+        message.error('Пользователь с таким телефоном или email уже существует')
       } else {
         message.error(error.response?.data?.message || error.response?.data?.error || 'Ошибка регистрации')
       }
@@ -60,6 +64,38 @@ const RegisterForm: React.FC = () => {
   const onFinish = (values: any) => {
     const { confirmPassword, ...registerData } = values
     mutate(registerData as RegisterRequest)
+  }
+
+  const handleGoogleRegister = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    setSocialLoading('google')
+    
+    try {
+      // Переход на страницу авторизации Google через бэкенд
+      const authUrl = authService.getGoogleAuthUrl()
+      window.location.href = authUrl
+    } catch (error: any) {
+      message.error(error.message || 'Ошибка регистрации через Google')
+      setSocialLoading(null)
+    }
+  }
+
+  const handleAppleRegister = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    setSocialLoading('apple')
+    
+    try {
+      // Переход на страницу авторизации Apple через бэкенд
+      const authUrl = authService.getAppleAuthUrl()
+      window.location.href = authUrl
+    } catch (error: any) {
+      message.error(error.message || 'Ошибка регистрации через Apple')
+      setSocialLoading(null)
+    }
   }
 
   return (
@@ -117,13 +153,13 @@ const RegisterForm: React.FC = () => {
           { required: true, message: 'Введите номер телефона' },
           { 
             pattern: /^(\+?996|0)?[0-9]{9}$/, 
-            message: 'Неверный формат телефона (например: +996551697296)' 
+            message: 'Неверный формат телефона' 
           },
         ]}
         normalize={(value) => value?.replace(/\s+/g, '')}
       >
         <Input
-          placeholder="+996551697296"
+          placeholder="Введите номер телефона"
           size="large"
           prefix={<PhoneOutlined />}
           className="auth-input"
@@ -183,7 +219,9 @@ const RegisterForm: React.FC = () => {
         </Button>
       </Form.Item>
 
-      <Form.Item style={{ marginTop: 24 }}>
+      <Divider className="auth-divider">или</Divider>
+
+      <Form.Item style={{ marginBottom: 12 }}>
         <Button
           block
           size="large"
@@ -208,12 +246,31 @@ const RegisterForm: React.FC = () => {
               />
             </svg>
           }
-          onClick={(e) => {
-            e.preventDefault()
-            message.info('Регистрация через Google в разработке')
-          }}
+          onClick={handleGoogleRegister}
+          loading={socialLoading === 'google'}
+          disabled={isPending || socialLoading !== null}
         >
           Продолжить с Google
+        </Button>
+      </Form.Item>
+
+      <Form.Item style={{ marginBottom: 0 }}>
+        <Button
+          block
+          size="large"
+          className="auth-apple-button"
+          icon={
+            <img
+              src="/src/Resources/Images/image 281.png"
+              alt="Apple"
+              style={{ width: 18, height: 18, marginRight: 8 }}
+            />
+          }
+          onClick={handleAppleRegister}
+          loading={socialLoading === 'apple'}
+          disabled={isPending || socialLoading !== null}
+        >
+          Продолжить с Apple
         </Button>
       </Form.Item>
     </Form>
@@ -221,4 +278,3 @@ const RegisterForm: React.FC = () => {
 }
 
 export default RegisterForm
-

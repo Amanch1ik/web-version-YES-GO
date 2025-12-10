@@ -3,7 +3,7 @@ import { Typography, Button, Slider, Space, message, Modal, QRCode } from 'antd'
 import { ArrowLeftOutlined, QrcodeOutlined, PictureOutlined, ThunderboltOutlined, CloseOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { walletService } from '@/services/wallet.service'
+import { qrService } from '@/services/qr.service'
 import jsQR from 'jsqr'
 import './QRScannerPage.css'
 
@@ -16,7 +16,7 @@ const QRScannerPage: React.FC = () => {
   const [flashlight, setFlashlight] = useState(false)
   const [showMyQR, setShowMyQR] = useState(false)
   const [scanning, setScanning] = useState(false)
-  const [scannedData, setScannedData] = useState<string | null>(null)
+  const [, setScannedData] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -40,7 +40,7 @@ const QRScannerPage: React.FC = () => {
 
   const handleRedeemQr = async (data: string) => {
     try {
-      const response = await walletService.applyQrCode(data)
+      const response = await qrService.applyQrCode(data)
 
       if (response.success) {
         message.success(response.message || 'Бонусы успешно начислены')
@@ -78,7 +78,7 @@ const QRScannerPage: React.FC = () => {
       return
     }
 
-    const context = canvas.getContext('2d')
+    const context = canvas.getContext('2d', { willReadFrequently: true })
     if (!context) return
 
     canvas.width = video.videoWidth

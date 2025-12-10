@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom'
-import { Card, Row, Col, Typography, Button, Input, Tag } from 'antd'
+import { Card, Typography, Input, Spin, Empty } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
+import { useQuery } from '@tanstack/react-query'
+import { partnerService } from '@/services/partner.service'
 import './FoodPage.css'
 
 const { Title, Text } = Typography
@@ -8,37 +10,26 @@ const { Title, Text } = Typography
 const FoodPage: React.FC = () => {
   const navigate = useNavigate()
 
-  const categories = [
-    { id: 'fastfood', name: 'Фаст-фуд', icon: '/src/Resources/Images/stories_sales.png' },
-    { id: 'burger', name: 'Бургер', icon: '/src/Resources/Images/sales_stories1.png' },
-    { id: 'chicken', name: 'Курица', icon: '/src/Resources/Images/Frame 20 (1).png' },
-    { id: 'lagman', name: 'Лагман', icon: '/src/Resources/Images/sales_stories2.png' },
-    { id: 'coffee', name: 'Кофе', icon: '/src/Resources/Images/sales_stories3.png' },
-  ]
+  // Получаем партнёров категории "Еда и напитки" (id = 2)
+  const { data: partners, isLoading } = useQuery({
+    queryKey: ['partners-food'],
+    queryFn: () => partnerService.getPartnersByCategoryId(2),
+    retry: 1,
+  })
 
-  const brands = [
-    { id: 'whycook', name: 'WHYCOOK', logo: '/src/Resources/Images/Frame 20 (1).png' },
-    { id: 'tasty', name: 'Tasty', logo: '/src/Resources/Images/sales_stories4.png' },
-    { id: 'goodfood', name: 'good food', logo: '/src/Resources/Images/storiespage_yesscoin.png' },
-    { id: 'goods', name: 'GOOD', logo: '/src/Resources/Images/storiespage_bonus.png' },
-  ]
+  // Получаем категории
+  const { data: categories } = useQuery({
+    queryKey: ['partner-categories'],
+    queryFn: partnerService.getCategories,
+    retry: 1,
+  })
 
-  const restaurants = [
-    {
-      id: 'whycook-rest',
-      name: 'WHYCOOK',
-      image: '/src/Resources/Images/Frame 20 (1).png',
-      discount: '30 %',
-      rating: '100 % (500+)',
-    },
-    {
-      id: 'mubarak',
-      name: 'Mubarak/Мубарак',
-      image: '/src/Resources/Images/image 185.png',
-      discount: '25 %',
-      rating: '97 % (400+)',
-    },
-  ]
+  const foodCategories = categories?.filter(cat => 
+    cat.name?.toLowerCase().includes('еда') || 
+    cat.name?.toLowerCase().includes('напиток') ||
+    cat.name?.toLowerCase().includes('кофе') ||
+    cat.name?.toLowerCase().includes('ресторан')
+  ) || []
 
   return (
     <div className="food-page">
@@ -79,76 +70,69 @@ const FoodPage: React.FC = () => {
         />
       </div>
 
-      {/* Food categories icons */}
-      <div className="food-chips-row">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            className="food-chip"
-          >
-            <div className="food-chip-icon">
-              <img src={cat.icon} alt={cat.name} />
-            </div>
-            <span className="food-chip-label">{cat.name}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Popular brands */}
-      <div className="food-section">
-        <div className="food-section-header">
-          <Title level={4} className="food-section-title">
-            Популярные бренды
-          </Title>
-        </div>
-        <div className="food-brands-row">
-          {brands.map((brand) => (
+      {/* Food categories */}
+      {foodCategories.length > 0 && (
+        <div className="food-chips-row">
+          {foodCategories.map((cat) => (
             <button
-              key={brand.id}
+              key={cat.id}
               type="button"
-              className="food-brand-card"
-              onClick={() => navigate('/partners')}
+              className="food-chip"
+              onClick={() => navigate(`/partners?category=${cat.id}`)}
             >
-              <div className="food-brand-logo">
-                <img src={brand.logo} alt={brand.name} />
+              <div className="food-chip-icon">
+                {cat.iconUrl && <img src={cat.iconUrl} alt={cat.name} />}
               </div>
-              <Tag color="green" className="food-brand-discount">
-                30 %
-              </Tag>
+              <span className="food-chip-label">{cat.name}</span>
             </button>
           ))}
         </div>
-      </div>
+      )}
 
-      {/* Restaurants list */}
+      {/* Partners list */}
       <div className="food-section">
-        {restaurants.map((rest) => (
-          <Card
-            key={rest.id}
-            className="food-restaurant-card"
-            variant="borderless"
-            onClick={() => navigate('/partners')}
-          >
-            <div className="food-restaurant-image">
-              <img src={rest.image} alt={rest.name} />
-            </div>
-            <div className="food-restaurant-info">
-              <div className="food-restaurant-title-row">
-                <Text className="food-restaurant-name">{rest.name}</Text>
-                <Tag color="green" className="food-restaurant-discount">
-                  {rest.discount}
-                </Tag>
+        <div className="food-section-header">
+          <Title level={4} className="food-section-title">
+            Рестораны и кафе
+          </Title>
+        </div>
+
+        {isLoading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '32px' }}>
+            <Spin size="large" />
+          </div>
+        ) : partners && partners.length > 0 ? (
+          partners.map((partner) => (
+            <Card
+              key={partner.id}
+              className="food-restaurant-card"
+              variant="borderless"
+              onClick={() => navigate(`/partners/${partner.id}`)}
+            >
+              <div className="food-restaurant-image">
+                {partner.logo && <img src={partner.logo} alt={partner.name} />}
               </div>
-              <Text className="food-restaurant-rating">{rest.rating}</Text>
-            </div>
-          </Card>
-        ))}
+              <div className="food-restaurant-info">
+                <div className="food-restaurant-title-row">
+                  <Text className="food-restaurant-name">{partner.name}</Text>
+                  {partner.cashbackPercent && (
+                    <span className="food-restaurant-discount">
+                      {partner.cashbackPercent}%
+                    </span>
+                  )}
+                </div>
+                {partner.description && (
+                  <Text className="food-restaurant-rating">{partner.description}</Text>
+                )}
+              </div>
+            </Card>
+          ))
+        ) : (
+          <Empty description="Нет доступных партнёров" />
+        )}
       </div>
     </div>
   )
 }
 
 export default FoodPage
-
-

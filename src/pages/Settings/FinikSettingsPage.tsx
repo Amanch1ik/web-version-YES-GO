@@ -47,7 +47,7 @@ const FinikSettingsPage: React.FC = () => {
     }
   }
 
-  const handleDeleteKey = (keyId?: string) => {
+  const handleDeleteKey = (_keyId?: string) => {
     finikService.removeApiKeys()
     message.success('API ключи удалены')
     loadApiKeys()

@@ -11,7 +11,7 @@ const ReferralPage: React.FC = () => {
   const [copied, setCopied] = useState(false)
   
   // Генерируем реферальную ссылку на основе ID пользователя
-  const referralLink = `https://yess!go.kg/r/${user?.id?.slice(0, 6) || 'aD3LQ'}`
+  const referralLink = `https://yessgo.kg/r/${String(user?.id || '').slice(0, 6) || 'aD3LQ'}`
   
   const stats = {
     downloaded: 10,

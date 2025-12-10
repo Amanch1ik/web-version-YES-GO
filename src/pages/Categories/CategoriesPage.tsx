@@ -1,5 +1,7 @@
-import { Input, Card, Row, Col, Typography } from 'antd'
+import { Input, Card, Row, Col, Typography, Spin, Empty } from 'antd'
 import { useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { partnerService } from '@/services/partner.service'
 import './CategoriesPage.css'
 
 const { Title } = Typography
@@ -7,19 +9,17 @@ const { Title } = Typography
 const CategoriesPage: React.FC = () => {
   const navigate = useNavigate()
 
-  const categories = [
-    { id: 1, name: 'Все компании', icon: '/src/Resources/Images/cat_all.png', color: '#faad14' },
-    { id: 2, name: 'Еда и напитки', icon: '/src/Resources/Images/cat_food.png', color: '#fa8c16' },
-    { id: 3, name: 'Одежда и обувь', icon: '/src/Resources/Images/cat_clothes.png', color: '#1890ff' },
-    { id: 4, name: 'Красота', icon: '/src/Resources/Images/cat_beauty.png', color: '#eb2f96' },
-    { id: 5, name: 'Все для дома', icon: '/src/Resources/Images/cat_home.png', color: '#722ed1' },
-    { id: 6, name: 'Продукты', icon: '/src/Resources/Images/category_products.png', color: '#52c41a' },
-    { id: 7, name: 'Электроника', icon: '/src/Resources/Images/cat_electronics.png', color: '#13c2c2' },
-    { id: 8, name: 'Детское', icon: '/src/Resources/Images/cat_kids.png', color: '#fa8c16' },
-    { id: 9, name: 'Спорт и отдых', icon: '/src/Resources/Images/cat_sport.png', color: '#2f54eb' },
-    { id: 10, name: 'Кафе и рестораны', icon: '/src/Resources/Images/category_cafe.png', color: '#fa541c' },
-    { id: 11, name: 'Транспорт', icon: '/src/Resources/Images/category_transport.png', color: '#1890ff' },
-    { id: 12, name: 'Образование', icon: '/src/Resources/Images/category_education.png', color: '#722ed1' },
+  const { data: categories, isLoading } = useQuery({
+    queryKey: ['partner-categories'],
+    queryFn: partnerService.getCategories,
+    retry: 1,
+  })
+
+  // Цвета для категорий
+  const categoryColors = [
+    '#faad14', '#fa8c16', '#1890ff', '#eb2f96', '#722ed1',
+    '#52c41a', '#13c2c2', '#fa8c16', '#2f54eb', '#fa541c',
+    '#1890ff', '#722ed1'
   ]
 
   return (
@@ -65,36 +65,40 @@ const CategoriesPage: React.FC = () => {
         Категории
       </Title>
 
-      <Row gutter={[16, 16]} className="categories-grid">
-        {categories.map((category, index) => (
-          <Col key={category.id} xs={8} sm={8} md={8} lg={8}>
-            <Card
-              hoverable
-              className="category-card"
-              onClick={() =>
-                category.id === 7
-                  ? navigate('/categories/electronics')
-                  : category.id === 2
-                  ? navigate('/categories/food')
-                  : navigate(`/partners?category=${category.id}`)
-              }
-              style={{ animationDelay: `${index * 0.05}s` }}
-            >
-              <div
-                className="category-icon-wrapper"
-                style={{ backgroundColor: `${category.color}15` }}
+      {isLoading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '48px' }}>
+          <Spin size="large" />
+        </div>
+      ) : categories && categories.length > 0 ? (
+        <Row gutter={[16, 16]} className="categories-grid">
+          {categories.map((category, index) => (
+            <Col key={category.id} xs={8} sm={8} md={8} lg={8}>
+              <Card
+                hoverable
+                className="category-card"
+                onClick={() => navigate(`/partners?category=${category.id}`)}
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
-                <img 
-                  src={category.icon} 
-                  alt={category.name} 
-                  className="category-icon"
-                />
-              </div>
-              <div className="category-name">{category.name}</div>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+                <div
+                  className="category-icon-wrapper"
+                  style={{ backgroundColor: `${categoryColors[index % categoryColors.length]}15` }}
+                >
+                  {category.iconUrl && (
+                    <img 
+                      src={category.iconUrl} 
+                      alt={category.name} 
+                      className="category-icon"
+                    />
+                  )}
+                </div>
+                <div className="category-name">{category.name}</div>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      ) : (
+        <Empty description="Нет доступных категорий" />
+      )}
     </div>
   )
 }

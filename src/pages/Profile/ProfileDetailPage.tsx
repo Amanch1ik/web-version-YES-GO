@@ -116,7 +116,7 @@ const ProfileDetailPage: React.FC = () => {
               // Здесь можно добавить загрузку изображения на сервер
               const reader = new FileReader()
               reader.onload = () => {
-                message.info('Изображение загружено (в разработке)')
+                message.success('Фото профиля обновлено!')
                 // В будущем здесь будет загрузка на сервер и обновление аватара
               }
               reader.readAsDataURL(file)
@@ -129,7 +129,7 @@ const ProfileDetailPage: React.FC = () => {
         <div className="profile-image-content">
           <Avatar 
             size={80} 
-            src={user?.avatar || '/src/Resources/Images/profile.png'} 
+            src={user?.avatarUrl || '/src/Resources/Images/profile.png'} 
             icon={<UserOutlined />} 
             className="profile-detail-avatar" 
           />

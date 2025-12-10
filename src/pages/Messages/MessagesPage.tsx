@@ -1,51 +1,46 @@
 import { useState } from 'react'
-import { Card, Typography, Button, Row, Col, message as antdMessage, Space } from 'antd'
+import { Card, Typography, Button, Row, Col, message as antdMessage, Space, Spin, Empty } from 'antd'
 import { 
   ShareAltOutlined, 
   QrcodeOutlined, 
   CopyOutlined, 
   CheckCircleOutlined 
 } from '@ant-design/icons'
+import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/contexts/AuthContext'
+import { referralService } from '@/services/referral.service'
+import { notificationService } from '@/services/notification.service'
 import './MessagesPage.css'
 
 const { Title } = Typography
 
 const MessagesPage: React.FC = () => {
-  const { user } = useAuth()
+  useAuth() // для проверки авторизации
   const [copied, setCopied] = useState(false)
 
-  const referralLink = `https://yessgo.kg/r/${user?.id?.slice(0, 6) || 'aD3LQ'}`
+  // Получаем статистику рефералов из API
+  const { data: referralStats, isLoading: referralLoading } = useQuery({
+    queryKey: ['referral-stats'],
+    queryFn: referralService.getReferralStats,
+    retry: 1,
+  })
 
+  // Получаем уведомления/бонусы из API
+  const { data: notificationsData, isLoading: notificationsLoading } = useQuery({
+    queryKey: ['my-notifications'],
+    queryFn: () => notificationService.getMyNotifications(1, 20),
+    retry: 1,
+  })
+
+  const referralLink = referralStats?.referralLink || `https://yessgo.kg/r/${referralStats?.referralCode || ''}`
+  
   const stats = {
-    downloaded: 10,
-    activated: 5,
-    bonus: 50,
+    downloaded: referralStats?.totalReferrals || 0,
+    activated: referralStats?.activatedReferrals || 0,
+    bonus: referralStats?.totalRewardsEarned || 0,
   }
 
-  const bonuses = [
-    {
-      id: 1,
-      date: '02.10.2025',
-      icon: '/src/Resources/Images/bonus_stories.png',
-      text: 'Оплачивайте через QR Yess!Go и экономьте деньги. Bishkek Petroleum, Планета электроники, Бингем фарм, Азия и еще 100+ партнеров! Перейдите в раздел "Бонусы" в Yess!Go и ознакомьтесь с ними подробнее!',
-      time: '22:07',
-    },
-    {
-      id: 2,
-      date: '02.10.2025',
-      icon: '/src/Resources/Images/sc_bonus.png',
-      text: 'Начислено: 0,14 ₿ за покупку в Азия Доступно: 0,14 ₿',
-      time: '22:07',
-    },
-    {
-      id: 3,
-      date: '02.10.2025',
-      icon: '/src/Resources/Images/stories_bday.png',
-      text: 'Ваш новый уровень на Октябрь: Бронза',
-      time: '22:07',
-    },
-  ]
+  const notifications = notificationsData?.notifications || []
 
   const handleCopy = async () => {
     try {
@@ -53,7 +48,7 @@ const MessagesPage: React.FC = () => {
       setCopied(true)
       antdMessage.success('Ссылка скопирована!')
       setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
+    } catch {
       antdMessage.error('Не удалось скопировать ссылку')
     }
   }
@@ -63,7 +58,7 @@ const MessagesPage: React.FC = () => {
       try {
         await navigator.share({
           title: 'YESS Go',
-          text: 'Присоединяйся к YESS Go!',
+          text: `Присоединяйся к YESS Go и получи ${referralStats?.bonusForReferred || 250} Yess!Coin!`,
           url: referralLink,
         })
       } catch {
@@ -78,14 +73,19 @@ const MessagesPage: React.FC = () => {
     antdMessage.info('QR код в разработке')
   }
 
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr)
+    return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  }
+
+  const formatTime = (dateStr: string) => {
+    const date = new Date(dateStr)
+    return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+  }
+
   return (
     <div className="messages-page">
       <div className="messages-header">
-        <img 
-          src="/src/Resources/Images/icon_messages.png" 
-          alt="Messages" 
-          className="messages-header-icon" 
-        />
         <Title level={3} className="messages-title">
           Сообщения
         </Title>
@@ -97,37 +97,43 @@ const MessagesPage: React.FC = () => {
           Поделитесь с друзьями классным приложением!
         </Title>
         <p className="messages-card-text">
-          Когда новый клиент установит приложение по вашей уникальной ссылке и активирует Yess приложение, вы оба получите по 250 Yess!Coin на счет кешбэка
+          Когда новый клиент установит приложение по вашей уникальной ссылке и активирует Yess приложение, вы оба получите по {referralStats?.bonusPerReferral || 250} Yess!Coin на счет кешбэка
         </p>
       </Card>
 
       {/* Stats */}
-      <Row gutter={12} className="messages-stats">
-        <Col xs={8}>
-          <Card className="messages-stat-card">
-            <span className="messages-stat-label">Скачали</span>
-            <Title level={3} className="messages-stat-value">
-              {stats.downloaded}
-            </Title>
-          </Card>
-        </Col>
-        <Col xs={8}>
-          <Card className="messages-stat-card">
-            <span className="messages-stat-label">Активировали</span>
-            <Title level={3} className="messages-stat-value">
-              {stats.activated}
-            </Title>
-          </Card>
-        </Col>
-        <Col xs={8}>
-          <Card className="messages-stat-card messages-stat-card-bonus">
-            <span className="messages-stat-label">Ваш бонус</span>
-            <Title level={3} className="messages-stat-value messages-stat-value-bonus">
-              {stats.bonus}
-            </Title>
-          </Card>
-        </Col>
-      </Row>
+      {referralLoading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '24px' }}>
+          <Spin />
+        </div>
+      ) : (
+        <Row gutter={12} className="messages-stats">
+          <Col xs={8}>
+            <Card className="messages-stat-card">
+              <span className="messages-stat-label">Скачали</span>
+              <Title level={3} className="messages-stat-value">
+                {stats.downloaded}
+              </Title>
+            </Card>
+          </Col>
+          <Col xs={8}>
+            <Card className="messages-stat-card">
+              <span className="messages-stat-label">Активировали</span>
+              <Title level={3} className="messages-stat-value">
+                {stats.activated}
+              </Title>
+            </Card>
+          </Col>
+          <Col xs={8}>
+            <Card className="messages-stat-card messages-stat-card-bonus">
+              <span className="messages-stat-label">Ваш бонус</span>
+              <Title level={3} className="messages-stat-value messages-stat-value-bonus">
+                {stats.bonus}
+              </Title>
+            </Card>
+          </Col>
+        </Row>
+      )}
 
       {/* Referral Link */}
       <Card className="messages-link-card">
@@ -172,37 +178,50 @@ const MessagesPage: React.FC = () => {
           Бонусы
         </Title>
 
-        <div className="messages-bonus-list">
-          {bonuses.map((bonus, index) => {
-            const showDate =
-              index === 0 || bonus.date !== bonuses[index - 1].date
+        {notificationsLoading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '24px' }}>
+            <Spin />
+          </div>
+        ) : notifications.length > 0 ? (
+          <div className="messages-bonus-list">
+            {notifications.map((notification, index) => {
+              const currentDate = formatDate(notification.createdAt)
+              const prevDate = index > 0 ? formatDate(notifications[index - 1].createdAt) : null
+              const showDate = index === 0 || currentDate !== prevDate
 
-            return (
-              <div key={bonus.id}>
-                {showDate && (
-                  <div className="messages-bonus-date">{bonus.date}</div>
-                )}
-                <div className="messages-bonus-item">
-                  <div className="messages-bonus-icon-wrapper">
-                    <img
-                      src={bonus.icon}
-                      alt="bonus"
-                      className="messages-bonus-icon"
-                    />
-                  </div>
-                  <div className="messages-bonus-content">
-                    <p className="messages-bonus-text">{bonus.text}</p>
-                    <span className="messages-bonus-time">{bonus.time}</span>
+              return (
+                <div key={notification.id}>
+                  {showDate && (
+                    <div className="messages-bonus-date">{currentDate}</div>
+                  )}
+                  <div className="messages-bonus-item">
+                    <div className="messages-bonus-icon-wrapper">
+                      <div className="messages-bonus-icon-placeholder">
+                        {notification.type === 'push' ? '🔔' : 
+                         notification.type === 'email' ? '📧' : '📢'}
+                      </div>
+                    </div>
+                    <div className="messages-bonus-content">
+                      <p className="messages-bonus-text">
+                        {notification.title && <strong>{notification.title}</strong>}
+                        {notification.title && notification.body && <br />}
+                        {notification.body}
+                      </p>
+                      <span className="messages-bonus-time">
+                        {formatTime(notification.createdAt)}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+        ) : (
+          <Empty description="Нет уведомлений" />
+        )}
       </div>
     </div>
   )
 }
 
 export default MessagesPage
-

@@ -1,3 +1,14 @@
+:root {
+  /* Темно-зелёная палитра по дизайну */
+  --primary: #03533A;
+  --primary-accent: #07B981;
+  --primary-light: #10D98E;
+  --primary-dark: #024830;
+  --primary-contrast: #012A21;
+  --primary-bg: #E8FBF4;
+  --text-main: #0f1f0f;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -11,6 +22,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #f5f5f5;
+  color: var(--text-main);
 }
 
 #root {
@@ -130,9 +142,46 @@ body {
 
 .ant-input:focus,
 .ant-input-focused {
-  box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(45, 80, 22, 0.2) !important;
   transform: translateY(-1px);
-  border-color: #52c41a !important;
+  border-color: var(--primary) !important;
+}
+
+/* Ant Design primary color overrides */
+.ant-btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background: var(--primary-accent);
+  border-color: var(--primary-accent);
+}
+
+.ant-btn-default:hover,
+.ant-btn-default:focus {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.ant-switch-checked {
+  background: var(--primary);
+}
+
+.ant-checkbox-checked .ant-checkbox-inner,
+.ant-radio-checked .ant-radio-inner {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.ant-tabs-ink-bar,
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--primary) !important;
+}
+
+.ant-tabs-ink-bar {
+  background: var(--primary);
 }
 
 /* Responsive utilities */
@@ -199,7 +248,7 @@ body {
 }
 
 .welcome-text {
-  color: #52c41a;
+  color: var(--primary);
   font-size: 18px;
   font-weight: 400;
   margin-bottom: 20px;
@@ -207,7 +256,7 @@ body {
 }
 
 .welcome-title {
-  color: #389e0d;
+  color: var(--primary);
   font-size: 64px;
   font-weight: 700;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
@@ -234,7 +283,7 @@ body {
   transform: translateX(-50%);
   width: 134px;
   height: 5px;
-  background: #389e0d;
+  background: var(--primary-dark);
   border-radius: 3px;
 }
 

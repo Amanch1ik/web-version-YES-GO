@@ -14,25 +14,12 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        // В dev режиме проксируем на тот же backend, что использует мобильное приложение.
-        // Можно переопределить через VITE_API_BASE_URL, иначе используется https://api.yessgo.org
-        target: process.env.VITE_API_BASE_URL || 'https://api.yessgo.org',
+        // Проксируем на продовый домен по HTTPS
+        target: process.env.VITE_API_BASE_URL || 'https://yessgo.org',
         changeOrigin: true,
-        secure: true, // backend по умолчанию работает по HTTPS
-        rewrite: (path) => path, // Не переписываем путь, так как он уже содержит /api
-        configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
-            // Подавляем ошибки прокси в DEV режиме, когда сервер недоступен
-            // Это нормально для разработки без запущенного бэкенда
-            // Не выводим ошибки в консоль - они обрабатываются на клиенте
-            return
-          })
-          proxy.on('proxyReq', (proxyReq, req, res) => {
-            // Логируем только успешные запросы, ошибки подавляем
-          })
-        },
+        secure: true,
+        rewrite: (path) => path,
       },
     },
   },
 })
-

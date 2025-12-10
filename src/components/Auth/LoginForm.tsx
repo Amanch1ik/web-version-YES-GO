@@ -1,4 +1,5 @@
-import { Form, Input, Button, Checkbox, message } from 'antd'
+import { useState } from 'react'
+import { Form, Input, Button, Checkbox, message, Divider } from 'antd'
 import { UserOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons'
 import { useMutation } from '@tanstack/react-query'
 import { authService } from '@/services/auth.service'
@@ -10,18 +11,16 @@ import './AuthForm.css'
 const LoginForm: React.FC = () => {
   const navigate = useNavigate()
   const { updateUser } = useAuth()
+  const [socialLoading, setSocialLoading] = useState<'google' | 'apple' | null>(null)
   
   const { mutate, isPending } = useMutation({
     mutationFn: (data: LoginRequest) => authService.login(data),
     onSuccess: async (data) => {
       try {
-        // Убеждаемся, что данные сохранены в localStorage
-        // authService.login уже сохранил данные, но перепроверяем
         const { setToken, setUser } = await import('@/utils/storage')
         setToken(data.token)
         setUser(data.user)
         
-        // Синхронная проверка сразу после сохранения
         const savedToken = localStorage.getItem('yess_token')
         const savedUser = localStorage.getItem('yess_user')
         
@@ -30,7 +29,6 @@ const LoginForm: React.FC = () => {
           return
         }
         
-        // Обновляем состояние авторизации через контекст СИНХРОННО
         updateUser(data.user)
         
         message.success({
@@ -38,16 +36,11 @@ const LoginForm: React.FC = () => {
           duration: 1,
         })
         
-        // Используем navigate вместо window.location для более плавной навигации
-        // PrivateRoute теперь проверяет только localStorage, поэтому данные будут видны сразу
         setTimeout(() => {
-          // Финальная проверка перед навигацией
           const finalToken = localStorage.getItem('yess_token')
           const finalUser = localStorage.getItem('yess_user')
           
           if (finalToken && finalUser) {
-            // Используем navigate с replace для предотвращения возврата назад
-            // PrivateRoute проверит localStorage синхронно и разрешит доступ
             navigate('/', { replace: true })
           } else {
             message.error('Ошибка: данные авторизации не найдены')
@@ -59,14 +52,8 @@ const LoginForm: React.FC = () => {
       }
     },
     onError: (error: any) => {
-      // В DEV режиме не показываем ошибки сети
-      const isDev = import.meta.env.DEV || import.meta.env.VITE_DEV_MODE === 'true'
-      if (isDev && (error.code === 'ERR_NETWORK' || error.message?.includes('ERR_CONNECTION_REFUSED'))) {
-        return
-      }
-      
       if (error.code === 'ERR_NETWORK' || error.message?.includes('ERR_CONNECTION_REFUSED')) {
-        const apiUrl = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:8000'
+        const apiUrl = (import.meta as any).env?.VITE_API_BASE_URL || 'https://yessgo.org'
         message.error(`Не удалось подключиться к серверу. Убедитесь, что Backend API запущен на ${apiUrl}`)
       } else if (error.response?.status === 400) {
         const errorData = error.response?.data
@@ -88,6 +75,8 @@ const LoginForm: React.FC = () => {
           const errorMsg = errorData?.title || errorData?.message || JSON.stringify(errorData) || 'Неверный формат данных'
           message.error(errorMsg)
         }
+      } else if (error.response?.status === 401) {
+        message.error('Неверный номер телефона или пароль')
       } else {
         message.error(error.response?.data?.message || error.response?.data?.error || error.message || 'Ошибка входа')
       }
@@ -99,24 +88,36 @@ const LoginForm: React.FC = () => {
     mutate(loginData)
   }
 
-  const handleDevLogin = (e: React.MouseEvent) => {
+  const handleGoogleLogin = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     
-    const isDev = import.meta.env.DEV || import.meta.env.VITE_DEV_MODE === 'true'
+    setSocialLoading('google')
     
-    if (!isDev) {
-      message.warning('DEV режим не активен. Убедитесь, что вы запускаете приложение через npm run dev')
-      return
+    try {
+      // Переход на страницу авторизации Google через бэкенд
+      const authUrl = authService.getGoogleAuthUrl()
+      window.location.href = authUrl
+    } catch (error: any) {
+      message.error(error.message || 'Ошибка входа через Google')
+      setSocialLoading(null)
     }
+  }
+
+  const handleAppleLogin = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     
-    const mockData: LoginRequest = {
-      email: 'dev@example.com',
-      password: 'dev123',
+    setSocialLoading('apple')
+    
+    try {
+      // Переход на страницу авторизации Apple через бэкенд
+      const authUrl = authService.getAppleAuthUrl()
+      window.location.href = authUrl
+    } catch (error: any) {
+      message.error(error.message || 'Ошибка входа через Apple')
+      setSocialLoading(null)
     }
-    
-    // Вызываем mutate напрямую - onSuccess и onError уже определены в useMutation
-    mutate(mockData)
   }
 
   return (
@@ -128,15 +129,15 @@ const LoginForm: React.FC = () => {
       className="auth-form"
     >
       <Form.Item
-        label="E-mail"
-        name="email"
+        label="Телефон"
+        name="phone"
         rules={[
-          { required: true, message: 'Введите E-mail' },
-          { type: 'email', message: 'Неверный формат E-mail' },
+          { required: true, message: 'Введите номер телефона' },
+          { pattern: /^[+]?[\d\s-]{6,20}$/, message: 'Неверный формат телефона' },
         ]}
       >
         <Input
-          placeholder="sofia@gmail.com"
+          placeholder="Введите номер телефона"
           size="large"
           prefix={<UserOutlined />}
           className="auth-input"
@@ -173,28 +174,15 @@ const LoginForm: React.FC = () => {
         </Button>
       </Form.Item>
 
-      {(import.meta.env.DEV || import.meta.env.VITE_DEV_MODE === 'true') && (
-        <Form.Item style={{ marginTop: 8, marginBottom: 0 }}>
-          <Button
-            type="dashed"
-            block
-            size="large"
-            onClick={handleDevLogin}
-            disabled={isPending}
-            htmlType="button"
-          >
-            🚀 Войти для разработки (DEV)
-          </Button>
-        </Form.Item>
-      )}
-
       <div className="auth-link">
         <a href="#" onClick={(e) => { e.preventDefault(); message.info('Функция в разработке') }}>
           Забыли пароль?
         </a>
       </div>
 
-      <Form.Item style={{ marginTop: 24 }}>
+      <Divider className="auth-divider">или</Divider>
+
+      <Form.Item style={{ marginBottom: 12 }}>
         <Button
           block
           size="large"
@@ -219,12 +207,31 @@ const LoginForm: React.FC = () => {
               />
             </svg>
           }
-          onClick={(e) => {
-            e.preventDefault()
-            message.info('Вход через Google в разработке')
-          }}
+          onClick={handleGoogleLogin}
+          loading={socialLoading === 'google'}
+          disabled={isPending || socialLoading !== null}
         >
           Продолжить с Google
+        </Button>
+      </Form.Item>
+
+      <Form.Item style={{ marginBottom: 0 }}>
+        <Button
+          block
+          size="large"
+          className="auth-apple-button"
+          icon={
+            <img
+              src="/src/Resources/Images/image 281.png"
+              alt="Apple"
+              style={{ width: 18, height: 18, marginRight: 8 }}
+            />
+          }
+          onClick={handleAppleLogin}
+          loading={socialLoading === 'apple'}
+          disabled={isPending || socialLoading !== null}
+        >
+          Продолжить с Apple
         </Button>
       </Form.Item>
     </Form>

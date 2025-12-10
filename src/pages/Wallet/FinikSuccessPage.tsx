@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Card, Typography, Button, Result, Spin } from 'antd'
-import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, LoadingOutlined } from '@ant-design/icons'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { finikService } from '@/services/finik.service'
 import { FinikPaymentStatus } from '@/types/finik'
 import './FinikSuccessPage.css'
 
-const { Title, Text } = Typography
+const { Text } = Typography
 
 const FinikSuccessPage: React.FC = () => {
   const navigate = useNavigate()

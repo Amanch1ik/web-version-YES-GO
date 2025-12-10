@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Card, Typography, Button, Input, message } from 'antd'
+import { Typography, Button, Input, message } from 'antd'
 import type { InputRef } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import './ConfirmCodePage.css'

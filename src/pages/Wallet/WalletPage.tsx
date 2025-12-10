@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { walletService } from '@/services/wallet.service'
 import './WalletPage.css'
 
-const { Title, Text } = Typography
+const { Text } = Typography
 
 const WalletPage: React.FC = () => {
   const { data: balance, isLoading: balanceLoading } = useQuery({

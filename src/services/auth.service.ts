@@ -1,140 +1,242 @@
 import api from './api'
-import { API_ENDPOINTS } from '@/config/api'
-import { LoginRequest, RegisterRequest, AuthResponse } from '@/types/auth'
-import { setToken, setUser, clearStorage } from '@/utils/storage'
-
-// Функция для проверки мок-режима (управляется только переменной окружения)
-const checkDevMode = () => {
-  return import.meta.env.VITE_DEV_MODE === 'true'
-}
+import { API_ENDPOINTS, API_BASE_URL } from '@/config/api'
+import { 
+  LoginRequest, 
+  RegisterRequest, 
+  AuthResponse, 
+  User,
+  SendCodeRequest,
+  SendCodeResponse,
+  VerifyCodeRequest,
+  VerifyCodeResponse,
+  RefreshTokenRequest,
+  RefreshTokenResponse,
+  SocialLoginRequest,
+  SocialLoginResponse
+} from '@/types/auth'
+import { ReferralStats } from '@/types/referral'
+import { setToken, setRefreshToken, setUser, clearStorage, getRefreshToken } from '@/utils/storage'
 
 export const authService = {
+  /**
+   * Вход по телефону/email и паролю
+   */
   login: async (data: LoginRequest): Promise<AuthResponse> => {
-    // Мок‑режим - пропускаем запрос на сервер
-    const currentDevMode = checkDevMode()
-    
-    if (currentDevMode) {
-      try {
-        // Небольшая задержка для имитации запроса
-        await new Promise(resolve => setTimeout(resolve, 300))
-        
-        const mockUser: AuthResponse = {
-          token: 'dev-token-' + Date.now(),
-          user: {
-            id: 'dev-user-id-' + Date.now(),
-            email: data.email || data.phone || 'dev@example.com',
-            phone: data.phone || '+996555123456',
-            firstName: 'Dev',
-            lastName: 'User',
-            fullName: 'Dev User',
-            isActive: true,
-          },
-        }
-        
-        // Сохраняем данные синхронно
-        setToken(mockUser.token)
-        setUser(mockUser.user)
-        
-        // Синхронная проверка сразу после сохранения
-        const savedToken = localStorage.getItem('yess_token')
-        const savedUser = localStorage.getItem('yess_user')
-        
-        if (!savedToken || !savedUser) {
-          throw new Error('Не удалось сохранить данные авторизации')
-        }
-        
-        return mockUser
-      } catch (error) {
-        throw error
-      }
+    const rawPhone = data.phone || data.email
+    if (!rawPhone) {
+      throw new Error('Необходимо указать телефон')
     }
-
-    // Если есть email, используем его, иначе phone
-    let loginData: any
+    const cleanPhone = rawPhone.replace(/\s+/g, '').replace(/[^\d+]/g, '').trim()
     
-    if (data.email) {
-      loginData = { 
-        email: data.email.trim(), 
-        password: data.password 
-      }
-    } else if (data.phone) {
-      // Очищаем номер телефона от пробелов и форматируем
-      const cleanPhone = data.phone.replace(/\s+/g, '').trim()
-      loginData = { 
-        phone: cleanPhone, 
-        password: data.password 
-      }
-    } else {
-      throw new Error('Необходимо указать email или телефон')
+    const loginData = { 
+      phone: cleanPhone, 
+      password: data.password 
     }
     
-    const response = await api.post<AuthResponse>(API_ENDPOINTS.AUTH_LOGIN, loginData)
+    const response = await api.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, loginData)
     if (response.data.token) {
       setToken(response.data.token)
+      if (response.data.refreshToken) {
+        setRefreshToken(response.data.refreshToken)
+      }
       setUser(response.data.user)
     }
     return response.data
   },
 
-  register: async (data: RegisterRequest): Promise<AuthResponse> => {
-    // Режим разработки - пропускаем проверку сервера
-    if (checkDevMode()) {
-      // Небольшая задержка для имитации запроса
-      await new Promise(resolve => setTimeout(resolve, 300))
-      
-      const mockUser: AuthResponse = {
-        token: 'dev-token-' + Date.now(),
-        user: {
-          id: 'dev-user-id',
-          email: data.email || 'dev@example.com',
-          phone: data.phone,
-          firstName: data.firstName || 'Dev',
-          lastName: data.lastName || 'User',
-          fullName: `${data.firstName || 'Dev'} ${data.lastName || 'User'}`,
-          isActive: true,
-        },
+  /**
+   * Вход по JSON (альтернативный формат)
+   */
+  loginJson: async (data: LoginRequest): Promise<AuthResponse> => {
+    const response = await api.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN_JSON, data)
+    if (response.data.token) {
+      setToken(response.data.token)
+      if (response.data.refreshToken) {
+        setRefreshToken(response.data.refreshToken)
       }
-      // Сохраняем данные синхронно
-      setToken(mockUser.token)
-      setUser(mockUser.user)
-      
-      // Синхронная проверка сразу после сохранения
-      const savedToken = localStorage.getItem('yess_token')
-      const savedUser = localStorage.getItem('yess_user')
-      
-      if (!savedToken || !savedUser) {
-        throw new Error('Не удалось сохранить данные авторизации')
-      }
-      
-      return mockUser
+      setUser(response.data.user)
     }
+    return response.data
+  },
 
-    // Очищаем и форматируем данные
+  /**
+   * Регистрация нового пользователя
+   */
+  register: async (data: RegisterRequest): Promise<AuthResponse> => {
     const cleanPhone = data.phone?.replace(/\s+/g, '').replace(/[^\d+]/g, '').trim()
-    
-    const registerData: any = {
+
+    const registerData: Record<string, unknown> = {
       firstName: data.firstName?.trim(),
       lastName: data.lastName?.trim(),
-      email: data.email?.trim().toLowerCase(),
       password: data.password,
     }
     
-    // Добавляем телефон (обязательное поле)
+    if (data.email) {
+      registerData.email = data.email.trim().toLowerCase()
+    }
+    
     if (cleanPhone) {
       registerData.phone = cleanPhone
     }
+
+    if (data.referralCode) {
+      registerData.referralCode = data.referralCode.trim()
+    }
     
-    const response = await api.post<AuthResponse>(API_ENDPOINTS.AUTH_REGISTER, registerData)
+    const response = await api.post<AuthResponse>(API_ENDPOINTS.AUTH.REGISTER, registerData)
     if (response.data.token) {
       setToken(response.data.token)
+      if (response.data.refreshToken) {
+        setRefreshToken(response.data.refreshToken)
+      }
       setUser(response.data.user)
     }
     return response.data
   },
 
+  /**
+   * Отправить код верификации на телефон
+   */
+  sendCode: async (data: SendCodeRequest): Promise<SendCodeResponse> => {
+    const cleanPhone = data.phone.replace(/\s+/g, '').replace(/[^\d+]/g, '').trim()
+    const response = await api.post<SendCodeResponse>(API_ENDPOINTS.AUTH.SEND_CODE, {
+      phone: cleanPhone,
+      type: data.type || 'login'
+    })
+    return response.data
+  },
+
+  /**
+   * Отправить код верификации (альтернативный endpoint)
+   */
+  sendVerificationCode: async (phone: string): Promise<SendCodeResponse> => {
+    const cleanPhone = phone.replace(/\s+/g, '').replace(/[^\d+]/g, '').trim()
+    const response = await api.post<SendCodeResponse>(API_ENDPOINTS.AUTH.SEND_VERIFICATION_CODE, {
+      phone: cleanPhone
+    })
+    return response.data
+  },
+
+  /**
+   * Проверить код верификации
+   */
+  verifyCode: async (data: VerifyCodeRequest): Promise<VerifyCodeResponse> => {
+    const cleanPhone = data.phone.replace(/\s+/g, '').replace(/[^\d+]/g, '').trim()
+    const response = await api.post<VerifyCodeResponse>(API_ENDPOINTS.AUTH.VERIFY_CODE, {
+      phone: cleanPhone,
+      code: data.code
+    })
+    
+    if (response.data.token) {
+      setToken(response.data.token)
+      if (response.data.user) {
+        setUser(response.data.user)
+      }
+    }
+    return response.data
+  },
+
+  /**
+   * Получить текущего пользователя
+   */
+  getMe: async (): Promise<User> => {
+    const response = await api.get<User>(API_ENDPOINTS.AUTH.ME)
+    if (response.data) {
+      setUser(response.data)
+    }
+    return response.data
+  },
+
+  /**
+   * Обновить токен
+   */
+  refreshToken: async (): Promise<RefreshTokenResponse> => {
+    const refreshToken = getRefreshToken()
+    if (!refreshToken) {
+      throw new Error('No refresh token available')
+    }
+
+    const response = await api.post<RefreshTokenResponse>(API_ENDPOINTS.AUTH.REFRESH, {
+      refreshToken
+    } as RefreshTokenRequest)
+    
+    if (response.data.token) {
+      setToken(response.data.token)
+      if (response.data.refreshToken) {
+        setRefreshToken(response.data.refreshToken)
+      }
+    }
+    return response.data
+  },
+
+  /**
+   * Получить статистику рефералов
+   */
+  getReferralStats: async (): Promise<ReferralStats> => {
+    const response = await api.get<ReferralStats>(API_ENDPOINTS.AUTH.REFERRAL_STATS)
+    return response.data
+  },
+
+  /**
+   * Вход через Google
+   */
+  loginWithGoogle: async (idToken: string): Promise<SocialLoginResponse> => {
+    const response = await api.post<SocialLoginResponse>(API_ENDPOINTS.AUTH.GOOGLE_LOGIN, {
+      idToken,
+      provider: 'google'
+    } as SocialLoginRequest)
+    
+    if (response.data.token) {
+      setToken(response.data.token)
+      if (response.data.refreshToken) {
+        setRefreshToken(response.data.refreshToken)
+      }
+      setUser(response.data.user)
+    }
+    return response.data
+  },
+
+  /**
+   * Получить URL для Google OAuth
+   */
+  getGoogleAuthUrl: (): string => {
+    const redirectUri = `${window.location.origin}/auth/google/callback`
+    return `${API_BASE_URL}/api${API_ENDPOINTS.AUTH.GOOGLE_LOGIN}?redirect_uri=${encodeURIComponent(redirectUri)}`
+  },
+
+  /**
+   * Вход через Apple
+   */
+  loginWithApple: async (idToken: string, authorizationCode?: string): Promise<SocialLoginResponse> => {
+    const response = await api.post<SocialLoginResponse>(API_ENDPOINTS.AUTH.APPLE_LOGIN, {
+      idToken,
+      authorizationCode,
+      provider: 'apple'
+    })
+    
+    if (response.data.token) {
+      setToken(response.data.token)
+      if (response.data.refreshToken) {
+        setRefreshToken(response.data.refreshToken)
+      }
+      setUser(response.data.user)
+    }
+    return response.data
+  },
+
+  /**
+   * Получить URL для Apple OAuth
+   */
+  getAppleAuthUrl: (): string => {
+    const redirectUri = `${window.location.origin}/auth/apple/callback`
+    return `${API_BASE_URL}/api${API_ENDPOINTS.AUTH.APPLE_LOGIN}?redirect_uri=${encodeURIComponent(redirectUri)}`
+  },
+
+  /**
+   * Выход из системы
+   */
   logout: () => {
     clearStorage()
     window.location.href = '/login'
   },
 }
-

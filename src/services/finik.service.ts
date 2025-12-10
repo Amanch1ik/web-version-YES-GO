@@ -6,76 +6,94 @@ import {
   FinikPaymentResponse,
   FinikPaymentStatus,
 } from '@/types/finik'
-
-// Получаем API ключи из localStorage (в реальном приложении это должно быть на сервере)
-const getFinikKeys = (): { apiKey: string; secretKey: string } | null => {
-  const apiKey = localStorage.getItem('finik_api_key')
-  const secretKey = localStorage.getItem('finik_secret_key')
-  if (apiKey && secretKey) {
-    return { apiKey, secretKey }
-  }
-  return null
-}
+import { getFinikKeys, setFinikKeys, removeFinikKeys } from '@/utils/storage'
 
 export const finikService = {
-  // Сохранить API ключи
+  /**
+   * Сохранить API ключи
+   */
   saveApiKeys: (apiKey: string, secretKey: string): void => {
-    localStorage.setItem('finik_api_key', apiKey)
-    localStorage.setItem('finik_secret_key', secretKey)
+    setFinikKeys(apiKey, secretKey)
   },
 
-  // Получить API ключи
+  /**
+   * Получить API ключи
+   */
   getApiKeys: (): { apiKey: string; secretKey: string } | null => {
     return getFinikKeys()
   },
 
-  // Удалить API ключи
+  /**
+   * Удалить API ключи
+   */
   removeApiKeys: (): void => {
-    localStorage.removeItem('finik_api_key')
-    localStorage.removeItem('finik_secret_key')
+    removeFinikKeys()
   },
 
-  // Создать платеж через Finik
+  /**
+   * Создать платеж через Finik
+   */
   createPayment: async (request: FinikPaymentRequest): Promise<FinikPaymentResponse> => {
     try {
-      // В реальном приложении это должно быть на бэкенде
-      // Здесь мы используем прокси через наш API
       const response = await api.post<FinikPaymentResponse>(
-        API_ENDPOINTS.FINIK_CREATE_PAYMENT,
+        API_ENDPOINTS.PAYMENTS.FINIK_CREATE,
         request
       )
       return response.data
-    } catch (error: any) {
-      // Если ошибка 500 или сервер недоступен, используем fallback
-      if (error?.name === 'SilentError' || error?.response?.status >= 500 || !error?.response || error?.response?.status === 0) {
-        const keys = getFinikKeys()
-        if (keys) {
-          return await createPaymentDirect(request, keys)
-        }
-        throw new Error('Finik API keys not configured')
+    } catch (error: unknown) {
+      const keys = getFinikKeys()
+      if (keys) {
+        // Fallback - попробовать через Payment Provider
+        const providerResponse = await api.post<FinikPaymentResponse>(
+          API_ENDPOINTS.PAYMENT_PROVIDER.PAYMENT,
+          {
+            ...request,
+            provider: 'finik'
+          }
+        )
+        return providerResponse.data
       }
-      throw error
+      throw new Error('Finik API keys not configured')
     }
   },
 
-  // Проверить статус платежа
+  /**
+   * Проверить статус платежа
+   */
   checkPaymentStatus: async (paymentId: string): Promise<FinikPaymentStatus> => {
     try {
       const response = await api.get<FinikPaymentStatus>(
-        API_ENDPOINTS.FINIK_PAYMENT_STATUS.replace(':id', paymentId)
+        API_ENDPOINTS.PAYMENTS.STATUS(paymentId)
       )
       return response.data
-    } catch (error: any) {
-      throw error
+    } catch (error: unknown) {
+      // Попробовать через Payment Provider
+      const response = await api.get<FinikPaymentStatus>(
+        API_ENDPOINTS.PAYMENT_PROVIDER.STATUS(paymentId)
+      )
+      return response.data
     }
   },
 
-  // Получить список API ключей (для админов)
+  /**
+   * Отменить платеж
+   */
+  cancelPayment: async (paymentId: string): Promise<{ success: boolean; message?: string }> => {
+    const response = await api.post<{ success: boolean; message?: string }>(
+      API_ENDPOINTS.PAYMENT_PROVIDER.CANCEL(paymentId),
+      {}
+    )
+    return response.data
+  },
+
+  /**
+   * Получить список API ключей (для админов)
+   */
   getApiKeysList: async (): Promise<FinikApiKey[]> => {
     try {
-      const response = await api.get<FinikApiKey[]>(API_ENDPOINTS.FINIK_API_KEYS)
+      const response = await api.get<FinikApiKey[]>(`${API_ENDPOINTS.PAYMENTS.FINIK_CREATE}/api-keys`)
       return response.data
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Fallback: возвращаем ключи из localStorage
       const keys = getFinikKeys()
       if (keys) {
@@ -92,23 +110,32 @@ export const finikService = {
     }
   },
 
-  // Создать новый API ключ
-  createApiKey: async (name: string): Promise<FinikApiKey> => {
+  /**
+   * Получить доступные методы оплаты
+   */
+  getPaymentMethods: async (): Promise<{ id: string; name: string; icon?: string; isActive: boolean }[]> => {
     try {
-      const response = await api.post<FinikApiKey>(API_ENDPOINTS.FINIK_API_KEYS, { name })
+      const response = await api.get<{ id: string; name: string; icon?: string; isActive: boolean }[]>(
+        API_ENDPOINTS.PAYMENT_PROVIDER.METHODS
+      )
       return response.data
-    } catch (error: any) {
-      throw error
+    } catch (error: unknown) {
+      return [
+        { id: 'finik', name: 'Finik', isActive: true },
+        { id: 'mbank', name: 'MBank', isActive: true },
+        { id: 'card', name: 'Банковская карта', isActive: true }
+      ]
     }
   },
-}
 
-// Прямой вызов Finik API (fallback)
-const createPaymentDirect = async (
-  request: FinikPaymentRequest,
-  _keys: { apiKey: string; secretKey: string }
-): Promise<FinikPaymentResponse> => {
-  // В реальном приложении здесь должен быть вызов Finik API
-  throw new Error('Direct Finik API calls are not supported. Please use backend API.')
+  /**
+   * Создать новый API ключ
+   */
+  createApiKey: async (name: string): Promise<FinikApiKey> => {
+    const response = await api.post<FinikApiKey>(
+      `${API_ENDPOINTS.PAYMENTS.FINIK_CREATE}/api-keys`,
+      { name }
+    )
+    return response.data
+  },
 }
-

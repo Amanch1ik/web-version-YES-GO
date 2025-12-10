@@ -4,6 +4,7 @@ import SplashScreen from './components/Splash/SplashScreen'
 import WelcomeScreen from './components/Welcome/WelcomeScreen'
 import AppLayout from './components/Layout/AppLayout'
 import LoginPage from './pages/Auth/LoginPage'
+import OAuthCallbackPage from './pages/Auth/OAuthCallbackPage'
 import HomePage from './pages/Home/HomePage'
 import WalletPage from './pages/Wallet/WalletPage'
 import PartnersPage from './pages/Partners/PartnersPage'
@@ -111,6 +112,7 @@ function App() {
     >
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth/:provider/callback" element={<OAuthCallbackPage />} />
         <Route
           path="/"
           element={

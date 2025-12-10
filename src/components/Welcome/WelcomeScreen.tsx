@@ -13,7 +13,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onComplete }) => {
   useEffect(() => {
     const video = videoRef.current
     let isMounted = true
-    let fallbackTimer: NodeJS.Timeout | null = null
+    let fallbackTimer: ReturnType<typeof setTimeout> | null = null
     let videoStarted = false
     let minDisplayTime = 2500 // Минимальное время показа - 2.5 секунды
     const startTime = Date.now()
