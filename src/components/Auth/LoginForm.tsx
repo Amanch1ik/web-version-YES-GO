@@ -3,7 +3,7 @@ import { Form, Input, Button, Checkbox, message, Divider } from 'antd'
 import { UserOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons'
 import { useMutation } from '@tanstack/react-query'
 import { authService } from '@/services/auth.service'
-import { LoginRequest } from '@/types/auth'
+import { LoginRequest, User } from '@/types/auth'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import './AuthForm.css'
@@ -12,6 +12,30 @@ const LoginForm: React.FC = () => {
   const navigate = useNavigate()
   const { updateUser } = useAuth()
   const [socialLoading, setSocialLoading] = useState<'google' | 'apple' | null>(null)
+  const isDevMode = (import.meta as any)?.env?.VITE_DEV_MODE === 'true'
+  
+  const devLogin = () => {
+    const mockUser: User = {
+      id: 'dev-user',
+      phone: '+000000000',
+      email: 'dev@yessgo.org',
+      firstName: 'Dev',
+      lastName: 'User',
+      fullName: 'Dev User',
+      isActive: true,
+      isVerified: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    import('@/utils/storage').then(({ setToken, setUser }) => {
+      setToken('dev-token')
+      setUser(mockUser)
+      updateUser(mockUser)
+      message.success('Dev вход активирован')
+      navigate('/', { replace: true })
+    })
+  }
   
   const { mutate, isPending } = useMutation({
     mutationFn: (data: LoginRequest) => authService.login(data),
@@ -85,6 +109,12 @@ const LoginForm: React.FC = () => {
 
   const onFinish = (values: LoginRequest & { remember?: boolean }) => {
     const { remember, ...loginData } = values
+
+    if (isDevMode) {
+      devLogin()
+      return
+    }
+
     mutate(loginData)
   }
 
@@ -174,8 +204,26 @@ const LoginForm: React.FC = () => {
         </Button>
       </Form.Item>
 
+      {isDevMode && (
+        <Form.Item style={{ marginTop: -8 }}>
+          <Button
+            block
+            size="large"
+            onClick={devLogin}
+          >
+            Войти в режиме разработки
+          </Button>
+        </Form.Item>
+      )}
+
       <div className="auth-link">
-        <a href="#" onClick={(e) => { e.preventDefault(); message.info('Функция в разработке') }}>
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault()
+            message.info('Для восстановления свяжитесь с поддержкой или используйте мобильное приложение.')
+          }}
+        >
           Забыли пароль?
         </a>
       </div>

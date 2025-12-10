@@ -3,10 +3,11 @@ import { message } from 'antd'
 import { API_BASE_URL } from '@/config/api'
 import { getToken, removeToken } from '@/utils/storage'
 
-// В dev режиме используем прокси Vite для обхода CORS
-// В production используем прямой URL
+// В dev можно принудительно ходить напрямую на API (если прокси не работает)
+// VITE_DIRECT_API=true — использовать прямой URL даже в dev
 const isDev = import.meta.env.DEV
-const baseURL = isDev ? '/api' : `${API_BASE_URL}/api`
+const useDirectApi = import.meta.env.VITE_DIRECT_API === 'true'
+const baseURL = useDirectApi ? `${API_BASE_URL}/api` : (isDev ? '/api' : `${API_BASE_URL}/api`)
 
 const api: AxiosInstance = axios.create({
   baseURL,
