@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom'
-import { Row, Col, Card, Avatar, Typography, Button } from 'antd'
+import { Row, Col, Card, Avatar, Typography, Button, Spin, Empty } from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/contexts/AuthContext'
 import { walletService } from '@/services/wallet.service'
 import { partnerService } from '@/services/partner.service'
+import { bannerService } from '@/services/banner.service'
+import { Banner } from '@/types/banner'
 import './HomePage.css'
 
 const { Title, Text } = Typography
@@ -26,6 +28,20 @@ const HomePage: React.FC = () => {
     refetchOnWindowFocus: false,
   })
 
+  const { data: categoriesData, isLoading: categoriesLoading } = useQuery({
+    queryKey: ['partner-categories-home'],
+    queryFn: partnerService.getCategories,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  })
+
+  const { data: activeBanners, isLoading: bannersLoading } = useQuery({
+    queryKey: ['active-banners'],
+    queryFn: bannerService.getActiveBanners,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  })
+
   const featuredPartners = partners?.slice(0, 4).map((partner) => ({
     id: partner.id,
     name: partner.name,
@@ -40,11 +56,33 @@ const HomePage: React.FC = () => {
     { icon: '/src/Resources/Images/image 183.png', label: 'ДР', color: '#eb2f96', onClick: () => navigate('/promo-code') },
   ]
 
-  const categories = [
-    { name: 'Одежда и обувь', icon: '/src/Resources/Images/cat_clothes.png', id: '1', color: '#52c41a' },
-    { name: 'Все для дома', icon: '/src/Resources/Images/cat_home.png', id: '2', color: '#1890ff' },
-    { name: 'Электроника', icon: '/src/Resources/Images/cat_electronics.png', id: '3', color: '#722ed1' },
-  ]
+  const categories = categoriesData?.slice(0, 3) || []
+
+  const bannersToShow = activeBanners?.slice(0, 2) || []
+
+  const handleBannerClick = (banner: Banner) => {
+    if (banner.externalUrl) {
+      window.open(banner.externalUrl, '_blank', 'noopener')
+      return
+    }
+
+    if (banner.actionType === 'partner' && banner.partnerId) {
+      navigate(`/partners/${banner.partnerId}`)
+      return
+    }
+
+    if (banner.actionType === 'category' && banner.categoryId) {
+      navigate(`/partners?category=${banner.categoryId}`)
+      return
+    }
+
+    if (banner.actionType === 'promotion' && banner.promotionId) {
+      navigate(`/promo-code?promotionId=${banner.promotionId}`)
+      return
+    }
+
+    navigate('/partners')
+  }
 
   // Форматируем имя пользователя
   const getUserDisplayName = () => {
@@ -148,59 +186,49 @@ const HomePage: React.FC = () => {
 
       {/* Promo Banners */}
       <Row gutter={16} className="promo-banners-row">
-        <Col xs={24} sm={12}>
-          <Card 
-            className="promo-banner promo-banner-red"
-            onClick={() => navigate('/promo-code')}
+        {bannersLoading ? (
+          <Col
+            span={24}
+            style={{ display: 'flex', justifyContent: 'center', paddingTop: 24, paddingRight: 24, paddingBottom: 24, paddingLeft: 24 }}
           >
-            <div className="promo-content">
-              <div className="promo-text">
-                <Title level={4} className="promo-title">
-                  А вот и весна!
-                </Title>
-                <Text className="promo-description">
-                  -20% на заказы от 1000
-                </Text>
-                <Text className="promo-code">Промокод: rt8pxdj</Text>
-              </div>
-              <div className="promo-image">
-                <img 
-                  src="/src/Resources/Images/banner_1.png" 
-                  alt="Promo" 
-                  className="promo-image-img"
-                />
-              </div>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12}>
-          <Card 
-            className="promo-banner promo-banner-green"
-            onClick={() => navigate('/partners')}
-          >
-            <div className="promo-content">
-              <div className="promo-text">
-                <Title level={4} className="promo-title">
-                  Доставка
-                </Title>
-                <Text className="promo-description">
-                  СКИДКА -25% на первый заказ
-                </Text>
-                <Text className="promo-delivery-time">
-                  Доставка от 30 минут
-                </Text>
-                <Text className="promo-code">Промокод: gnfva4t</Text>
-              </div>
-              <div className="promo-image">
-                <img 
-                  src="/src/Resources/Images/banner_2.png" 
-                  alt="Delivery" 
-                  className="promo-image-img"
-                />
-              </div>
-            </div>
-          </Card>
-        </Col>
+            <Spin />
+          </Col>
+        ) : bannersToShow.length > 0 ? (
+          bannersToShow.map((banner, index) => (
+            <Col key={banner.id} xs={24} sm={12}>
+              <Card 
+                className={`promo-banner ${index % 2 === 0 ? 'promo-banner-red' : 'promo-banner-green'}`}
+                onClick={() => handleBannerClick(banner)}
+              >
+                <div className="promo-content">
+                  <div className="promo-text">
+                    {banner.title && (
+                      <Title level={4} className="promo-title">
+                        {banner.title}
+                      </Title>
+                    )}
+                    {banner.description && (
+                      <Text className="promo-description">
+                        {banner.description}
+                      </Text>
+                    )}
+                  </div>
+                  <div className="promo-image">
+                    <img 
+                      src={banner.imageUrl} 
+                      alt={banner.title || 'Баннер'} 
+                      className="promo-image-img"
+                    />
+                  </div>
+                </div>
+              </Card>
+            </Col>
+          ))
+        ) : (
+          <Col span={24}>
+            <Empty description="Нет баннеров" />
+          </Col>
+        )}
       </Row>
 
       {/* Categories */}
@@ -215,26 +243,40 @@ const HomePage: React.FC = () => {
             Все категории →
           </Button>
         </div>
-        <Row gutter={16} className="categories-row">
-          {categories.map((category, index) => (
-            <Col key={category.id || index} xs={24} sm={8} md={8}>
-              <Card 
-                hoverable 
-                className="category-card"
-                onClick={() => navigate(`/partners?category=${category.id}`)}
-              >
-                <div className="category-icon">
-                  <img 
-                    src={category.icon} 
-                    alt={category.name} 
-                    className="category-icon-img"
-                  />
-                </div>
-                <Text className="category-name">{category.name}</Text>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+        {categoriesLoading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 24, paddingRight: 24, paddingBottom: 24, paddingLeft: 24 }}>
+            <Spin />
+          </div>
+        ) : categories.length > 0 ? (
+          <Row gutter={16} className="categories-row">
+            {categories.map((category, index) => (
+              <Col key={category.id || index} xs={24} sm={8} md={8}>
+                <Card 
+                  hoverable 
+                  className="category-card"
+                  onClick={() => navigate(`/partners?category=${category.id}`)}
+                >
+                  <div className="category-icon">
+                    {category.iconUrl ? (
+                      <img 
+                        src={category.iconUrl} 
+                        alt={category.name} 
+                        className="category-icon-img"
+                      />
+                    ) : (
+                      <div className="category-icon-placeholder">
+                        {category.name?.[0] || 'C'}
+                      </div>
+                    )}
+                  </div>
+                  <Text className="category-name">{category.name}</Text>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        ) : (
+          <Empty description="Нет категорий" />
+        )}
       </div>
 
       {/* Our Partners */}

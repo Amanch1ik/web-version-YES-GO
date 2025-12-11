@@ -13,4 +13,5 @@ export { qrService } from './qr.service'
 export { achievementService } from './achievement.service'
 export { referralService } from './referral.service'
 export { finikService } from './finik.service'
+export { adminService } from './admin.service'
 

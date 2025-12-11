@@ -1,5 +1,6 @@
 import api from './api'
 import { API_ENDPOINTS } from '@/config/api'
+import { getToken } from '@/utils/storage'
 import { 
   Referral,
   ReferralStats,
@@ -15,6 +16,21 @@ export const referralService = {
    * Получить статистику рефералов текущего пользователя
    */
   getReferralStats: async (): Promise<ReferralStats> => {
+    const token = getToken()
+    const isDevMode = import.meta.env.VITE_DEV_MODE === 'true'
+
+    if (isDevMode && token === 'dev-token') {
+      return {
+        totalReferrals: 0,
+        activatedReferrals: 0,
+        totalRewardsEarned: 0,
+        bonusForReferred: 0,
+        bonusPerReferral: 0,
+        referralCode: 'DEV',
+        referralLink: 'https://yessgo.org/r/DEV',
+      }
+    }
+
     const response = await api.get<ReferralStats>(API_ENDPOINTS.AUTH.REFERRAL_STATS)
     return response.data
   },

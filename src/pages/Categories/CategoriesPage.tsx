@@ -72,7 +72,7 @@ const CategoriesPage: React.FC = () => {
       ) : categories && categories.length > 0 ? (
         <Row gutter={[16, 16]} className="categories-grid">
           {categories.map((category, index) => (
-            <Col key={category.id} xs={8} sm={8} md={8} lg={8}>
+            <Col key={`${category.id ?? category.name ?? index}`} xs={8} sm={8} md={8} lg={8}>
               <Card
                 hoverable
                 className="category-card"

@@ -7,6 +7,7 @@ import { getToken, removeToken } from '@/utils/storage'
 // VITE_DIRECT_API=true — использовать прямой URL даже в dev
 const isDev = import.meta.env.DEV
 const useDirectApi = import.meta.env.VITE_DIRECT_API === 'true'
+const isDevModeEnv = import.meta.env.VITE_DEV_MODE === 'true'
 const baseURL = useDirectApi ? `${API_BASE_URL}/api` : (isDev ? '/api' : `${API_BASE_URL}/api`)
 
 const api: AxiosInstance = axios.create({
@@ -34,8 +35,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      removeToken()
-      window.location.href = '/login'
+      // В dev-режиме с dev-token не разлогиниваем, чтобы позволить просмотр без бэка
+      const token = getToken()
+      if (!(isDevModeEnv && token === 'dev-token')) {
+        removeToken()
+        window.location.href = '/login'
+      }
     } else if (!error.response) {
       // Обработка CORS и сетевых ошибок
       if (error.code === 'ERR_NETWORK' || 

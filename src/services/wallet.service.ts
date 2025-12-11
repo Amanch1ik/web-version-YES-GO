@@ -1,5 +1,6 @@
 import api from './api'
 import { API_ENDPOINTS } from '@/config/api'
+import { getToken } from '@/utils/storage'
 import { 
   WalletBalance, 
   WalletInfo,
@@ -23,7 +24,19 @@ export const walletService = {
    * Получить баланс кошелька
    */
   getBalance: async (): Promise<WalletBalance> => {
-    const response = await api.get<WalletBalance>(API_ENDPOINTS.PAYMENTS.BALANCE)
+    const token = getToken()
+    const isDevMode = import.meta.env.VITE_DEV_MODE === 'true'
+
+    if (isDevMode && token === 'dev-token') {
+      return {
+        balance: 0,
+        coins: 0,
+        currency: 'KGS',
+        lastUpdated: new Date().toISOString(),
+      }
+    }
+
+    const response = await api.get<WalletBalance>(API_ENDPOINTS.WALLET.BALANCE)
     return response.data
   },
 

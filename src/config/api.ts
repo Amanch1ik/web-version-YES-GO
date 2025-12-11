@@ -1,6 +1,6 @@
-// Базовый URL backend API. Продакшн-домен: https://yessgo.org
+// Базовый URL backend API. Продакшн-домен API: https://api.yessgo.org
 // Можно переопределить через VITE_API_BASE_URL в .env при необходимости.
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://yessgo.org'
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.yessgo.org'
 
 // Версия API
 const API_VERSION = '/v1'
@@ -169,6 +169,23 @@ export const API_ENDPOINTS = {
     AVATAR: `${API_VERSION}/upload/avatar`,
     PARTNER_LOGO: (partnerId: string | number) => `${API_VERSION}/upload/partner/logo/${partnerId}`,
     PARTNER_COVER: (partnerId: string | number) => `${API_VERSION}/upload/partner/cover/${partnerId}`,
+  },
+
+  // ==================== Admin ====================
+  ADMIN: {
+    FILE_UPLOAD: {
+      AVATAR: `${API_VERSION}/admin/upload/avatar`,
+    },
+    STORIES: {
+      LIST: `${API_VERSION}/admin/stories`,
+      CREATE: `${API_VERSION}/admin/stories`,
+      BY_ID: (storyId: string | number) => `${API_VERSION}/admin/stories/${storyId}`,
+      UPDATE: (storyId: string | number) => `${API_VERSION}/admin/stories/${storyId}`,
+      DELETE: (storyId: string | number) => `${API_VERSION}/admin/stories/${storyId}`,
+      TOGGLE: (storyId: string | number) => `${API_VERSION}/admin/stories/${storyId}/toggle`,
+      STATS_BY_ID: (storyId: string | number) => `${API_VERSION}/admin/stories/${storyId}/stats`,
+      STATS: `${API_VERSION}/admin/stories/stats`,
+    },
   },
 
   // ==================== Unified API ====================

@@ -1,5 +1,6 @@
 import api from './api'
 import { API_ENDPOINTS } from '@/config/api'
+import { getToken } from '@/utils/storage'
 import { 
   Notification, 
   NotificationListResponse,
@@ -13,6 +14,18 @@ export const notificationService = {
    * Получить уведомления текущего пользователя
    */
   getMyNotifications: async (page: number = 1, perPage: number = 20): Promise<NotificationListResponse> => {
+    const token = getToken()
+    const isDevMode = import.meta.env.VITE_DEV_MODE === 'true'
+
+    if (isDevMode && token === 'dev-token') {
+      return {
+        notifications: [],
+        totalCount: 0,
+        page,
+        pageSize: perPage,
+      }
+    }
+
     const response = await api.get<NotificationListResponse>(
       `${API_ENDPOINTS.NOTIFICATIONS.ME}?page=${page}&per_page=${perPage}`
     )

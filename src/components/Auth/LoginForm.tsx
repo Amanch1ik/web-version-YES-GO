@@ -13,7 +13,7 @@ const LoginForm: React.FC = () => {
   const { updateUser } = useAuth()
   const [socialLoading, setSocialLoading] = useState<'google' | 'apple' | null>(null)
   const isDevMode = (import.meta as any)?.env?.VITE_DEV_MODE === 'true'
-  
+
   const devLogin = () => {
     const mockUser: User = {
       id: 'dev-user',
@@ -110,7 +110,7 @@ const LoginForm: React.FC = () => {
   const onFinish = (values: LoginRequest & { remember?: boolean }) => {
     const { remember, ...loginData } = values
 
-    if (isDevMode) {
+    if (isDevMode && loginData.phone === '0000') {
       devLogin()
       return
     }
@@ -211,7 +211,7 @@ const LoginForm: React.FC = () => {
             size="large"
             onClick={devLogin}
           >
-            Войти в режиме разработки
+            Войти (dev)
           </Button>
         </Form.Item>
       )}

@@ -64,6 +64,20 @@ export const authService = {
    */
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
     const cleanPhone = data.phone?.replace(/\s+/g, '').replace(/[^\d+]/g, '').trim()
+    // Нормализуем телефон под формат API: начинаем с +996 и 9 цифр
+    let normalizedPhone = cleanPhone
+    if (cleanPhone) {
+      const digits = cleanPhone.replace(/[^\d]/g, '')
+      if (digits.length === 9) {
+        normalizedPhone = `+996${digits}`
+      } else if (digits.length === 10 && digits.startsWith('0')) {
+        normalizedPhone = `+996${digits.slice(1)}`
+      } else if (digits.length === 12 && digits.startsWith('996')) {
+        normalizedPhone = `+${digits}`
+      } else if (!cleanPhone.startsWith('+')) {
+        normalizedPhone = `+${digits}`
+      }
+    }
 
     const registerData: Record<string, unknown> = {
       firstName: data.firstName?.trim(),
@@ -75,8 +89,8 @@ export const authService = {
       registerData.email = data.email.trim().toLowerCase()
     }
     
-    if (cleanPhone) {
-      registerData.phone = cleanPhone
+    if (normalizedPhone) {
+      registerData.phone = normalizedPhone
     }
 
     if (data.referralCode) {
