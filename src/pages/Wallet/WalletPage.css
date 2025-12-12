@@ -71,28 +71,45 @@
 }
 
 .wallet-levels-card {
-  border-radius: 16px;
+  border-radius: 18px;
   margin-bottom: 16px;
   text-align: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #f6fff5 100%);
+  padding-top: 12px;
+}
+
+.wallet-levels-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 12px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .wallet-levels-title {
-  display: block;
-  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #0b1f16;
+}
+
+.wallet-levels-subtitle {
+  font-size: 12px;
+  color: #4caf50;
   font-weight: 600;
-  color: #000;
 }
 
 .wallet-levels-image {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 8px 12px 12px;
+  padding: 12px 12px 16px;
 }
 
 .wallet-levels-image img {
   width: auto;
-  max-width: 260px;
+  max-width: 100%;
   height: auto;
   display: block;
   object-fit: contain;
@@ -103,8 +120,8 @@
 .wallet-levels-badges {
   display: flex;
   justify-content: center;
-  gap: 4px;
-  margin-top: 8px;
+  gap: 6px;
+  margin: 8px 0 12px;
 }
 
 .wallet-tasks-title {

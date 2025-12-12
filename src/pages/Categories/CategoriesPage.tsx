@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { partnerService } from '@/services/partner.service'
 import './CategoriesPage.css'
+import { resolveAssetUrl } from '@/utils/assets'
 
 const { Title } = Typography
 
@@ -48,11 +49,11 @@ const CategoriesPage: React.FC = () => {
               />
               <img 
                 src="/src/Resources/Images/map_category_icon.png" 
-                alt="Город" 
+                alt="Карта" 
                 className="suffix-icon"
                 onClick={(e) => {
                   e.stopPropagation()
-                  navigate('/city')
+                  navigate('/map')
                 }}
               />
             </div>
@@ -71,7 +72,18 @@ const CategoriesPage: React.FC = () => {
         </div>
       ) : categories && categories.length > 0 ? (
         <Row gutter={[16, 16]} className="categories-grid">
-          {categories.map((category, index) => (
+          {categories.map((category, index) => {
+            const iconSrc = resolveAssetUrl(
+              category.iconUrl ||
+              (category as any).IconUrl ||
+              (category as any).icon ||
+              (category as any).Icon ||
+              (category as any).image ||
+              (category as any).Image ||
+              (category as any).coverUrl ||
+              (category as any).CoverUrl
+            )
+            return (
             <Col key={`${category.id ?? category.name ?? index}`} xs={8} sm={8} md={8} lg={8}>
               <Card
                 hoverable
@@ -83,18 +95,22 @@ const CategoriesPage: React.FC = () => {
                   className="category-icon-wrapper"
                   style={{ backgroundColor: `${categoryColors[index % categoryColors.length]}15` }}
                 >
-                  {category.iconUrl && (
+                  {iconSrc ? (
                     <img 
-                      src={category.iconUrl} 
+                      src={iconSrc} 
                       alt={category.name} 
                       className="category-icon"
                     />
+                  ) : (
+                    <div className="category-icon-placeholder">
+                      {category.name?.[0] || 'C'}
+                    </div>
                   )}
                 </div>
                 <div className="category-name">{category.name}</div>
               </Card>
             </Col>
-          ))}
+          )})}
         </Row>
       ) : (
         <Empty description="Нет доступных категорий" />

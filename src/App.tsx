@@ -5,6 +5,7 @@ import WelcomeScreen from './components/Welcome/WelcomeScreen'
 import AppLayout from './components/Layout/AppLayout'
 import LoginPage from './pages/Auth/LoginPage'
 import OAuthCallbackPage from './pages/Auth/OAuthCallbackPage'
+import ResetPasswordPage from './pages/Auth/ResetPasswordPage'
 import HomePage from './pages/Home/HomePage'
 import WalletPage from './pages/Wallet/WalletPage'
 import PartnersPage from './pages/Partners/PartnersPage'
@@ -31,6 +32,7 @@ import FinikSettingsPage from './pages/Settings/FinikSettingsPage'
 import SocialPage from './pages/Social/SocialPage'
 import StoriesPage from './pages/Social/StoriesPage'
 import QRScannerPage from './pages/QR/QRScannerPage'
+import MapPage from './pages/Map/MapPage'
 import { Spin } from 'antd'
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -113,6 +115,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/auth/:provider/callback" element={<OAuthCallbackPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route
           path="/"
           element={
@@ -189,6 +192,16 @@ function App() {
             <PrivateRoute>
               <AppLayout>
                 <QRScannerPage />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/map"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <MapPage />
               </AppLayout>
             </PrivateRoute>
           }

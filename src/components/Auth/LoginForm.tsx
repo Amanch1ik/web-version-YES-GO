@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Form, Input, Button, Checkbox, message, Divider } from 'antd'
-import { UserOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons'
+import { UserOutlined, EyeInvisibleOutlined, EyeTwoTone, MailOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useMutation } from '@tanstack/react-query'
 import { authService } from '@/services/auth.service'
 import { LoginRequest, User } from '@/types/auth'
@@ -12,6 +12,7 @@ const LoginForm: React.FC = () => {
   const navigate = useNavigate()
   const { updateUser } = useAuth()
   const [socialLoading, setSocialLoading] = useState<'google' | 'apple' | null>(null)
+  const [resetLoading, setResetLoading] = useState(false)
   const isDevMode = (import.meta as any)?.env?.VITE_DEV_MODE === 'true'
 
   const devLogin = () => {
@@ -118,6 +119,23 @@ const LoginForm: React.FC = () => {
     mutate(loginData)
   }
 
+  const handleResetPassword = async (phoneOrEmail?: string) => {
+    const contact = phoneOrEmail?.trim()
+    if (!contact) {
+      message.warning('Укажите телефон или email в форме и попробуйте снова')
+      return
+    }
+    setResetLoading(true)
+    try {
+      await authService.sendCode({ phone: contact, type: 'reset' })
+      message.success('Код для сброса отправлен')
+    } catch (error: any) {
+      message.error(error?.response?.data?.message || 'Не удалось отправить код')
+    } finally {
+      setResetLoading(false)
+    }
+  }
+
   const handleGoogleLogin = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -125,7 +143,6 @@ const LoginForm: React.FC = () => {
     setSocialLoading('google')
     
     try {
-      // Переход на страницу авторизации Google через бэкенд
       const authUrl = authService.getGoogleAuthUrl()
       window.location.href = authUrl
     } catch (error: any) {
@@ -141,7 +158,6 @@ const LoginForm: React.FC = () => {
     setSocialLoading('apple')
     
     try {
-      // Переход на страницу авторизации Apple через бэкенд
       const authUrl = authService.getAppleAuthUrl()
       window.location.href = authUrl
     } catch (error: any) {
@@ -221,7 +237,7 @@ const LoginForm: React.FC = () => {
           href="#"
           onClick={(e) => {
             e.preventDefault()
-            message.info('Для восстановления свяжитесь с поддержкой или используйте мобильное приложение.')
+            navigate('/reset-password')
           }}
         >
           Забыли пароль?

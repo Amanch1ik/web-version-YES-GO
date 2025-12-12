@@ -9,12 +9,19 @@ import {
   OrderPaymentResponse,
   OrderPaymentStatus
 } from '@/types/order'
+import { getToken } from '@/utils/storage'
 
 export const orderService = {
   /**
    * Получить список заказов пользователя
    */
   getOrders: async (): Promise<Order[]> => {
+    const token = getToken()
+    const isDevMode = import.meta.env.VITE_DEV_MODE === 'true'
+    // В dev с dev-token возвращаем пустой список, чтобы не ловить 401 от отсутствующего пользователя
+    if (isDevMode && token === 'dev-token') {
+      return []
+    }
     const response = await api.get<Order[]>(API_ENDPOINTS.ORDERS.LIST)
     return response.data
   },

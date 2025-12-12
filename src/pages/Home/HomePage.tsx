@@ -6,6 +6,7 @@ import { walletService } from '@/services/wallet.service'
 import { partnerService } from '@/services/partner.service'
 import { bannerService } from '@/services/banner.service'
 import { Banner } from '@/types/banner'
+import { resolveAssetUrl } from '@/utils/assets'
 import './HomePage.css'
 
 const { Title, Text } = Typography
@@ -45,7 +46,18 @@ const HomePage: React.FC = () => {
   const featuredPartners = partners?.slice(0, 4).map((partner) => ({
     id: partner.id,
     name: partner.name,
-    logo: partner.logo,
+    logo: resolveAssetUrl(
+      partner.logoUrl ||
+      (partner as any).LogoUrl ||
+      (partner as any).logo ||
+      (partner as any).image ||
+      (partner as any).Image ||
+      partner.avatarUrl ||
+      (partner as any).avatar ||
+      (partner as any).Avatar ||
+      (partner as any).photo ||
+      (partner as any).Photo
+    ),
   })) || []
 
   const quickActions = [
@@ -215,7 +227,7 @@ const HomePage: React.FC = () => {
                   </div>
                   <div className="promo-image">
                     <img 
-                      src={banner.imageUrl} 
+                      src={resolveAssetUrl(banner.imageUrl)} 
                       alt={banner.title || 'Баннер'} 
                       className="promo-image-img"
                     />
@@ -259,7 +271,7 @@ const HomePage: React.FC = () => {
                   <div className="category-icon">
                     {category.iconUrl ? (
                       <img 
-                        src={category.iconUrl} 
+                        src={resolveAssetUrl(category.iconUrl)} 
                         alt={category.name} 
                         className="category-icon-img"
                       />

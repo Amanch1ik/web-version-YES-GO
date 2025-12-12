@@ -10,6 +10,55 @@ import {
   CreateReviewRequest,
   NearbyPartnerRequest
 } from '@/types/partner'
+import { resolveAssetUrl } from '@/utils/assets'
+
+const normalizePartner = (p: any): Partner => {
+  const logoUrl =
+    p.logoUrl ||
+    p.LogoUrl ||
+    p.logo ||
+    p.Logo ||
+    p.image ||
+    p.Image ||
+    p.avatarUrl ||
+    p.avatar ||
+    p.Avatar ||
+    p.photo ||
+    p.Photo
+
+  const coverUrl =
+    p.coverUrl ||
+    p.CoverUrl ||
+    p.cover ||
+    p.Cover ||
+    p.coverImageUrl ||
+    p.CoverImageUrl ||
+    p.image ||
+    p.Image ||
+    p.photo ||
+    p.Photo
+
+  return {
+    ...p,
+    logoUrl,
+    coverUrl,
+  } as Partner
+}
+
+const normalizeProduct = (prod: any): Product => {
+  const image =
+    prod.imageUrl ||
+    prod.ImageUrl ||
+    prod.image ||
+    prod.Image ||
+    (Array.isArray(prod.images) ? prod.images[0] : undefined)
+
+  return {
+    ...prod,
+    image,
+    imageUrl: image,
+  } as Product
+}
 
 export const partnerService = {
   /**
@@ -17,7 +66,7 @@ export const partnerService = {
    */
   getPartners: async (): Promise<Partner[]> => {
     const response = await api.get<Partner[]>(API_ENDPOINTS.PARTNERS.LIST)
-    return response.data
+    return response.data.map(normalizePartner)
   },
 
   /**
@@ -25,7 +74,7 @@ export const partnerService = {
    */
   getPartnerById: async (id: string | number): Promise<PartnerDetail> => {
     const response = await api.get<PartnerDetail>(API_ENDPOINTS.PARTNERS.BY_ID(id))
-    return response.data
+    return normalizePartner(response.data) as PartnerDetail
   },
 
   /**
@@ -33,7 +82,7 @@ export const partnerService = {
    */
   getPartnersByCategory: async (category: string): Promise<Partner[]> => {
     const response = await api.get<Partner[]>(API_ENDPOINTS.PARTNERS.BY_CATEGORY(category))
-    return response.data
+    return response.data.map(normalizePartner)
   },
 
   /**
@@ -41,7 +90,7 @@ export const partnerService = {
    */
   getPartnersByCategoryId: async (categoryId: number): Promise<Partner[]> => {
     const response = await api.get<Partner[]>(API_ENDPOINTS.PARTNERS.BY_CATEGORY_ID(categoryId))
-    return response.data
+    return response.data.map(normalizePartner)
   },
 
   /**
@@ -49,7 +98,7 @@ export const partnerService = {
    */
   searchPartners: async (query: string): Promise<Partner[]> => {
     const response = await api.get<Partner[]>(API_ENDPOINTS.PARTNERS.SEARCH(query))
-    return response.data
+    return response.data.map(normalizePartner)
   },
 
   /**
@@ -59,7 +108,7 @@ export const partnerService = {
     const response = await api.get<Partner[]>(
       API_ENDPOINTS.PARTNERS.NEARBY(data.latitude, data.longitude, data.radius ? data.radius / 1000 : 10)
     )
-    return response.data
+    return response.data.map(normalizePartner)
   },
 
   /**
@@ -80,10 +129,10 @@ export const partnerService = {
     
     // Обрабатываем разные форматы ответа
     if (Array.isArray(response.data)) {
-      return response.data
+      return response.data.map(normalizeProduct)
     }
     if (response.data && 'items' in response.data) {
-      return response.data.items
+      return (response.data.items as any[]).map(normalizeProduct)
     }
     return []
   },
@@ -102,8 +151,16 @@ export const partnerService = {
    * Получить отзывы партнера
    */
   getPartnerReviews: async (partnerId: string | number): Promise<Review[]> => {
-    const response = await api.get<Review[]>(`${API_ENDPOINTS.PARTNERS.BY_ID(partnerId)}/reviews`)
-    return response.data
+    try {
+      const response = await api.get<Review[]>(`${API_ENDPOINTS.PARTNERS.BY_ID(partnerId)}/reviews`)
+      return response.data
+    } catch (error: any) {
+      // Если эндпоинт отсутствует или отдает 404, возвращаем пустой список, чтобы не ломать экран
+      if (error?.response?.status === 404) {
+        return []
+      }
+      throw error
+    }
   },
 
   /**

@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
     REGISTER: `${API_VERSION}/auth/register`,
     ME: `${API_VERSION}/auth/me`,
     REFRESH: `${API_VERSION}/auth/refresh`,
+    RESET_PASSWORD: `${API_VERSION}/auth/reset-password`,
     SEND_CODE: `${API_VERSION}/auth/send-code`,
     SEND_VERIFICATION_CODE: `${API_VERSION}/auth/send-verification-code`,
     VERIFY_CODE: `${API_VERSION}/auth/verify-code`,

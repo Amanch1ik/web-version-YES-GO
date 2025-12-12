@@ -132,6 +132,19 @@ export const authService = {
   },
 
   /**
+   * Сброс пароля
+   */
+  resetPassword: async (data: { phone: string; code: string; password: string }): Promise<{ success: boolean; message?: string }> => {
+    const cleanPhone = data.phone.replace(/\s+/g, '').replace(/[^\d+]/g, '').trim()
+    const response = await api.post<{ success: boolean; message?: string }>(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
+      phone: cleanPhone,
+      code: data.code,
+      password: data.password,
+    })
+    return response.data
+  },
+
+  /**
    * Проверить код верификации
    */
   verifyCode: async (data: VerifyCodeRequest): Promise<VerifyCodeResponse> => {

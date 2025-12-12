@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   Card,
@@ -10,6 +10,7 @@ import {
   Badge,
   Row,
   Col,
+  Empty,
 } from 'antd'
 import { 
   ArrowLeftOutlined
@@ -17,6 +18,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { partnerService } from '@/services/partner.service'
 import { Partner, Product, Review } from '@/types/partner'
+import { resolveAssetUrl } from '@/utils/assets'
 import './PartnerDetailPage.css'
 
 const { Title, Text } = Typography
@@ -28,11 +30,7 @@ const PartnerDetailPage: React.FC = () => {
 
   const { data: partner, isLoading: partnerLoading } = useQuery<Partner>({
     queryKey: ['partner', id],
-    queryFn: async () => {
-      // В реальном приложении будет отдельный endpoint для получения партнера по ID
-      const partners = await partnerService.getPartners()
-      return partners.find(p => p.id === id) || partners[0]
-    },
+    queryFn: () => partnerService.getPartnerById(id || ''),
     enabled: !!id,
   })
 
@@ -40,29 +38,12 @@ const PartnerDetailPage: React.FC = () => {
     queryKey: ['partner-products', id],
     queryFn: () => partnerService.getPartnerProducts(id || ''),
     enabled: !!id && activeTab === 'products',
+    select: (data) => data ?? [],
   })
 
-  // Временные отзывы по дизайну, пока нет API
-  const reviews: Review[] = [
-    {
-      id: '1',
-      partnerId: id || '1',
-      userId: 'u1',
-      userName: 'Айтбеков Аманбол',
-      rating: 5,
-      text: 'Недавно купил у вас IPHONE 14 Pro очень понравился камера бомба',
-      createdAt: '2025-11-08T17:44:00',
-    },
-    {
-      id: '2',
-      partnerId: id || '1',
-      userId: 'u2',
-      userName: 'Канай',
-      rating: 4,
-      text: 'Купил наушники вчера, очень хорошее качество звука, всем советую',
-      createdAt: '2025-11-08T17:44:00',
-    },
-  ]
+  // Backend не отдает отзывы в swagger, поэтому пока не запрашиваем, чтобы не ловить 404
+  const reviews: Review[] = []
+  const reviewsLoading = false
 
   if (partnerLoading) {
     return <div>Загрузка...</div>
@@ -72,50 +53,25 @@ const PartnerDetailPage: React.FC = () => {
     return <div>Партнер не найден</div>
   }
 
-  const categoryName = partner.category || 'Электроника'
-  const discount = partner.discount || 30
-  const rating = partner.rating || 5.0
-  const reviewCount = partner.reviewCount || 1365
-  const partnerNameLower = partner.name.toLowerCase()
+  const categoryName = partner.category || 'Категория'
+  const discount = partner.discount || 0
+  const rating = partner.rating || 0
+  const reviewCount = partner.reviewCount || reviews.length || 0
 
-  const headerImage = partnerNameLower.includes('whycook')
-    ? '/src/Resources/Images/Frame 20 (1).png'
-    : partnerNameLower.includes('techfire')
-    ? '/src/Resources/Images/Dashboard.png'
-    : '/src/Resources/Images/banner_2.png'
+  const headerImage = resolveAssetUrl(
+    partner.coverUrl ||
+    (partner as any).CoverUrl ||
+    (partner as any).cover ||
+    (partner as any).Cover ||
+    (partner as any).coverImageUrl ||
+    (partner as any).CoverImageUrl ||
+    (partner as any).image ||
+    (partner as any).Image ||
+    (partner as any).photo ||
+    (partner as any).Photo
+  ) || '/src/Resources/Images/banner_2.png'
 
-  const fallbackProducts: Product[] = partnerNameLower.includes('whycook')
-    ? [
-        {
-          id: 'whycook-1',
-          partnerId: partner.id,
-          name: 'Курица по-тайски 300 г',
-          description:
-            'Куриное крыло, мука пшеничная высший сорт, рис, сливки, специи.',
-          price: 200,
-          originalPrice: 250,
-          image: '/src/Resources/Images/Frame 20 (1).png',
-          category: 'Еда',
-          isAvailable: true,
-          discount: 30,
-          yessCoins: 58,
-        },
-        {
-          id: 'whycook-2',
-          partnerId: partner.id,
-          name: 'Курица в кисло-сладком соусе 420 г',
-          description:
-            'Курица в кисло-сладком соусе, рис, томатный соус, кунжут.',
-          price: 150,
-          originalPrice: 200,
-          image: '/src/Resources/Images/image 185.png',
-          category: 'Еда',
-          isAvailable: true,
-          discount: 30,
-          yessCoins: 60,
-        },
-      ]
-    : []
+  const fallbackProducts: Product[] = []
 
   const handleOpenInMaps = () => {
     const query = partner.address || partner.name
@@ -178,7 +134,19 @@ const PartnerDetailPage: React.FC = () => {
         <div className="partner-info-content">
           <Avatar 
             size={80} 
-            src={partner.logo}
+            src={resolveAssetUrl(
+              partner.logoUrl ||
+              (partner as any).LogoUrl ||
+              (partner as any).logo ||
+              (partner as any).Logo ||
+              (partner as any).image ||
+              (partner as any).Image ||
+              partner.avatarUrl ||
+              (partner as any).avatar ||
+              (partner as any).Avatar ||
+              (partner as any).photo ||
+              (partner as any).Photo
+            )}
             className="partner-logo"
           >
             {partner.name?.[0] || 'P'}
@@ -264,19 +232,27 @@ const PartnerDetailPage: React.FC = () => {
                     <Row gutter={[16, 16]}>
                       {products.map((product) => (
                         <Col xs={24} sm={12} key={product.id}>
-                          <Card
-                            hoverable
-                            className="product-card"
-                            cover={
-                              product.image ? (
-                                <img alt={product.name} src={product.image} />
-                              ) : (
-                                <div className="product-image-placeholder">
-                                  {product.name?.[0] || 'P'}
-                                </div>
-                              )
-                            }
-                          >
+                      <Card
+                        hoverable
+                        className="product-card"
+                        cover={
+                          product.image || (product as any).imageUrl || (product as any).ImageUrl || (product as any).Image || (product as any).image ? (
+                            <img
+                              alt={product.name}
+                              src={resolveAssetUrl(
+                                (product as any).imageUrl ||
+                                (product as any).ImageUrl ||
+                                (product as any).image ||
+                                (product as any).Image
+                              )}
+                            />
+                          ) : (
+                            <div className="product-image-placeholder">
+                              {product.name?.[0] || 'P'}
+                            </div>
+                          )
+                        }
+                      >
                             <div className="product-badge">
                               {product.discount && (
                                 <Badge count={`-${product.discount}%`} style={{ backgroundColor: '#52c41a' }} />
@@ -384,40 +360,46 @@ const PartnerDetailPage: React.FC = () => {
               key: 'reviews',
               label: 'Отзывы',
               children: (
-                <>
-                  <div className="partner-reviews-list">
-                    {reviews.map((review) => (
-                      <Card key={review.id} className="partner-review-card" variant="borderless">
-                        <div className="review-header">
-                          <div className="review-user">
-                            <Avatar size={40} className="review-avatar">
-                              {review.userName[0] || 'U'}
-                            </Avatar>
-                            <div className="review-user-meta">
-                              <Text strong className="review-user-name">
-                                {review.userName}
-                              </Text>
-                              <Rate
-                                disabled
-                                defaultValue={review.rating}
-                                allowHalf
-                                className="review-rating"
-                              />
+                <div style={{ padding: '12px 0' }}>
+                  {reviewsLoading ? (
+                    <Spin />
+                  ) : reviews.length > 0 ? (
+                    <div className="partner-reviews-list">
+                      {reviews.map((review) => (
+                        <Card key={review.id} className="partner-review-card" variant="borderless">
+                          <div className="review-header">
+                            <div className="review-user">
+                              <Avatar size={40} className="review-avatar">
+                                {review.userName[0] || 'U'}
+                              </Avatar>
+                              <div className="review-user-meta">
+                                <Text strong className="review-user-name">
+                                  {review.userName}
+                                </Text>
+                                <Rate
+                                  disabled
+                                  defaultValue={review.rating}
+                                  allowHalf
+                                  className="review-rating"
+                                />
+                              </div>
                             </div>
+                            <Text className="review-date">
+                              {new Date(review.createdAt).toLocaleDateString('ru-RU', {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                              })}
+                            </Text>
                           </div>
-                          <Text className="review-date">
-                            {new Date(review.createdAt).toLocaleDateString('ru-RU', {
-                              day: '2-digit',
-                              month: 'long',
-                              year: 'numeric',
-                            })}
-                          </Text>
-                        </div>
-                        <Text className="review-text">{review.text}</Text>
-                      </Card>
-                    ))}
-                  </div>
-                </>
+                          <Text className="review-text">{review.text}</Text>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <Empty description="Отзывы недоступны" />
+                  )}
+                </div>
               ),
             },
           ]}

@@ -35,7 +35,7 @@ const ProfilePage: React.FC = () => {
       key: 'city',
       icon: <img src="/src/Resources/Images/icon_location.png" alt="City" style={{ width: 20, height: 20 }} />,
       title: 'Мой город',
-      subtitle: 'Бишкек',
+      subtitle: user?.city || 'Не указан',
       onClick: () => {
         navigate('/city')
       },
@@ -67,7 +67,7 @@ const ProfilePage: React.FC = () => {
     {
       key: 'history',
       icon: <img src="/src/Resources/Images/icon_history.png" alt="History" style={{ width: 20, height: 20 }} />,
-      title: 'История операции',
+      title: 'История операций',
       onClick: () => {
         navigate('/wallet')
       },
@@ -118,7 +118,14 @@ const ProfilePage: React.FC = () => {
       {/* User Profile Card */}
       <Card className="profile-user-card" onClick={() => navigate('/profile/detail')}>
         <div className="profile-user-content">
-          <Avatar size={56} icon={<UserOutlined />} className="profile-avatar" />
+          <Avatar
+            size={56}
+            src={user?.avatarUrl}
+            icon={<UserOutlined />}
+            className="profile-avatar"
+          >
+            {user?.firstName?.[0] || user?.fullName?.[0] || 'U'}
+          </Avatar>
           <div className="profile-user-info">
             <Title level={4} className="profile-user-name">
               {userFullName}

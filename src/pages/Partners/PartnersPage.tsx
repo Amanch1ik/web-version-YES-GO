@@ -4,6 +4,7 @@ import { Input, Card, List, Typography, Button } from 'antd'
 import { useQuery } from '@tanstack/react-query'
 import { partnerService } from '@/services/partner.service'
 import { Partner } from '@/types/partner'
+import { resolveAssetUrl } from '@/utils/assets'
 import './PartnersPage.css'
 
 const { Text } = Typography
@@ -25,27 +26,6 @@ const PartnersPage: React.FC = () => {
     retry: 1,
     refetchOnWindowFocus: false,
   })
-
-  const getPartnerIcon = (partnerName: string) => {
-    // Логика для иконок партнеров
-    const name = partnerName.toLowerCase()
-    if (name.includes('фармамир') || name.includes('аптека') || name.includes('медицин')) {
-      return <img src="/src/Resources/Images/category_products.png" alt="Shop" style={{ width: 28, height: 28, objectFit: 'contain' }} />
-    }
-    if (name.includes('кофе') || name.includes('кафе') || name.includes('ресторан')) {
-      return <img src="/src/Resources/Images/category_cafe.png" alt="Cafe" style={{ width: 28, height: 28, objectFit: 'contain' }} />
-    }
-    if (name.includes('салон') || name.includes('красота') || name.includes('косметик')) {
-      return <img src="/src/Resources/Images/cat_beauty.png" alt="Beauty" style={{ width: 28, height: 28, objectFit: 'contain' }} />
-    }
-    if (name.includes('элдик') || name.includes('электроник') || name.includes('техник')) {
-      return <img src="/src/Resources/Images/cat_electronics.png" alt="Electronics" style={{ width: 28, height: 28, objectFit: 'contain' }} />
-    }
-    if (name.includes('одежд') || name.includes('магазин')) {
-      return <img src="/src/Resources/Images/cat_clothes.png" alt="Clothes" style={{ width: 28, height: 28, objectFit: 'contain' }} />
-    }
-    return <img src="/src/Resources/Images/cat_all.png" alt="Shop" style={{ width: 28, height: 28, objectFit: 'contain' }} />
-  }
 
   const filteredPartners =
     partners
@@ -162,7 +142,27 @@ const PartnersPage: React.FC = () => {
                     border: '2px solid #52c41a',
                     transition: 'all 0.3s ease'
                   }}>
-                    {getPartnerIcon(partner.name)}
+                    {partner.logoUrl || (partner as any).LogoUrl || (partner as any).logo || (partner as any).Logo || (partner as any).image || (partner as any).Image || partner.avatarUrl || (partner as any).avatar || (partner as any).Avatar || (partner as any).photo || (partner as any).Photo ? (
+                      <img
+                        src={resolveAssetUrl(
+                          partner.logoUrl ||
+                          (partner as any).LogoUrl ||
+                          (partner as any).logo ||
+                          (partner as any).Logo ||
+                          (partner as any).image ||
+                          (partner as any).Image ||
+                          partner.avatarUrl ||
+                          (partner as any).avatar ||
+                          (partner as any).Avatar ||
+                          (partner as any).photo ||
+                          (partner as any).Photo
+                        )}
+                        alt={partner.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <Text strong>{partner.name?.[0] || 'P'}</Text>
+                    )}
                   </div>
                 }
                 title={
