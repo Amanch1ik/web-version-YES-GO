@@ -36,7 +36,18 @@ const MapPage: React.FC = () => {
             partnerId: p.id,
             name: p.name,
             description: p.description,
-            logo: resolveAssetUrl(p.logoUrl || (p as any).logo),
+            logo: resolveAssetUrl(
+              p.logoUrl ||
+              (p as any).LogoUrl ||
+              (p as any).logo ||
+              (p as any).Logo ||
+              (p as any).image ||
+              (p as any).Image ||
+              (p as any).avatar ||
+              (p as any).Avatar ||
+              (p as any).photo ||
+              (p as any).Photo
+            ),
             lat: loc.latitude,
             lon: loc.longitude,
           }))
@@ -111,7 +122,7 @@ const MapPage: React.FC = () => {
   }, [partnerLocations, userPos])
 
   return (
-    <div className="map-page">
+    <div className="map-page animate-fade">
       <div className="map-header">
         <Title level={4} style={{ margin: 0 }}>Карта партнёров</Title>
         <Text type="secondary">OpenStreetMap</Text>

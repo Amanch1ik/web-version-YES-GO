@@ -8,10 +8,12 @@ import { API_BASE_URL } from '@/config/api'
  */
 export const resolveAssetUrl = (url?: string | null): string | undefined => {
   if (!url) return undefined
-  if (url.startsWith('http://') || url.startsWith('https://')) return url
-  if (url.startsWith('//')) return `https:${url}`
+  const trimmed = url.trim()
+  if (trimmed.startsWith('data:')) return trimmed
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed
+  if (trimmed.startsWith('//')) return `https:${trimmed}`
   const base = API_BASE_URL.replace(/\/$/, '')
-  const path = url.startsWith('/') ? url : `/${url}`
+  const path = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
   return `${base}${path}`
 }
 
