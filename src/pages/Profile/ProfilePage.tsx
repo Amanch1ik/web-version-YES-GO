@@ -116,7 +116,7 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="profile-page">
       {/* User Profile Card */}
-      <Card className="profile-user-card" onClick={() => navigate('/profile/detail')}>
+      <Card className="profile-user-card animate-fade" onClick={() => navigate('/profile/detail')}>
         <div className="profile-user-content">
           <Avatar
             size={56}
@@ -137,7 +137,7 @@ const ProfilePage: React.FC = () => {
       </Card>
 
       {/* Login Methods Card */}
-      <Card className="profile-methods-card">
+      <Card className="profile-methods-card animate-fade">
         <div className="profile-methods-header">
           <Title level={5} style={{ margin: 0 }}>
             Способы входа
@@ -181,7 +181,7 @@ const ProfilePage: React.FC = () => {
 
       {/* Menu Items */}
       <List
-        className="profile-menu-list"
+        className="profile-menu-list animate-fade"
         dataSource={menuItems}
         renderItem={(item) => (
           <List.Item className="profile-menu-item" onClick={item.onClick}>

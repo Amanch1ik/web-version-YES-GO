@@ -25,7 +25,7 @@ const CategoriesPage: React.FC = () => {
 
   return (
     <div className="categories-page">
-      <div className="search-section">
+      <div className="search-section animate-fade">
         <Input
           size="large"
           placeholder="Поиск по компаниям"
@@ -71,7 +71,7 @@ const CategoriesPage: React.FC = () => {
           <Spin size="large" />
         </div>
       ) : categories && categories.length > 0 ? (
-        <Row gutter={[16, 16]} className="categories-grid">
+        <Row gutter={[16, 16]} className="categories-grid animate-fade">
           {categories.map((category, index) => {
             const iconSrc = resolveAssetUrl(
               category.iconUrl ||

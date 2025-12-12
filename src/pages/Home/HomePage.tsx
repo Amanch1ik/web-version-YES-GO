@@ -173,7 +173,7 @@ const HomePage: React.FC = () => {
       </Card>
 
       {/* Quick Actions */}
-      <div className="quick-actions">
+      <div className="quick-actions animate-fade">
         {quickActions.map((action, index) => (
           <div 
             key={index} 
@@ -197,7 +197,7 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Promo Banners */}
-      <Row gutter={16} className="promo-banners-row">
+      <Row gutter={16} className="promo-banners-row animate-slide">
         {bannersLoading ? (
           <Col
             span={24}
@@ -260,7 +260,7 @@ const HomePage: React.FC = () => {
             <Spin />
           </div>
         ) : categories.length > 0 ? (
-          <Row gutter={16} className="categories-row">
+          <Row gutter={16} className="categories-row animate-fade">
             {categories.map((category, index) => (
               <Col key={category.id || index} xs={24} sm={8} md={8}>
                 <Card 
@@ -292,7 +292,7 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Our Partners */}
-      <div className="partners-section">
+      <div className="partners-section animate-fade">
         <Card className="partners-card" onClick={() => navigate('/partners')}>
           <Title level={4} className="partners-title">
             Наши Партнеры

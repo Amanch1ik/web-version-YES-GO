@@ -118,7 +118,7 @@ const PartnersPage: React.FC = () => {
       </div>
 
       {/* Partners List */}
-      <Card className="partners-list-card">
+      <Card className="partners-list-card animate-fade">
         <List
           loading={isLoading}
           dataSource={error ? [] : filteredPartners}

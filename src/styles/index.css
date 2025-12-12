@@ -63,6 +63,19 @@ body {
   }
 }
 
+/* Utility animation classes */
+.animate-fade {
+  animation: fadeIn 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.animate-slide {
+  animation: slideIn 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.animate-pop {
+  animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
 /* Smooth transitions for all interactive elements */
 * {
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;

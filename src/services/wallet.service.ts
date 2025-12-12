@@ -62,6 +62,13 @@ export const walletService = {
    * Получить историю кошелька
    */
   getHistory: async (page: number = 1, pageSize: number = 20): Promise<Transaction[]> => {
+    const token = getToken()
+    const isDevMode = import.meta.env.VITE_DEV_MODE === 'true'
+    // В dev с dev-token не запрашиваем историю, чтобы не ловить 401
+    if (isDevMode && token === 'dev-token') {
+      return []
+    }
+
     const response = await api.get<TransactionListResponse>(
       `${API_ENDPOINTS.WALLET.HISTORY}?page=${page}&page_size=${pageSize}`
     )

@@ -62,7 +62,7 @@ const WalletPage: React.FC = () => {
         </Text>
       </div>
 
-      <Card className="wallet-levels-card" variant="borderless">
+      <Card className="wallet-levels-card animate-pop" variant="borderless">
         <div className="wallet-levels-header">
           <Text className="wallet-levels-title">Уровни</Text>
           <Text className="wallet-levels-subtitle">Bronze • Gold • Silver</Text>
@@ -77,7 +77,7 @@ const WalletPage: React.FC = () => {
 
       <Text className="wallet-tasks-title">Задания</Text>
 
-      <div className="wallet-tasks-list">
+      <div className="wallet-tasks-list animate-fade">
         {historyLoading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: 16 }}>
             <Spin />

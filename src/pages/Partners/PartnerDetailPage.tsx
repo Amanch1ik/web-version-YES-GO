@@ -215,7 +215,7 @@ const PartnerDetailPage: React.FC = () => {
       </Card>
 
       {/* Tabs */}
-      <Card className="partner-tabs-card">
+      <Card className="partner-tabs-card animate-fade">
         <Tabs 
           activeKey={activeTab} 
           onChange={(key) => setActiveTab(key as 'products' | 'reviews')}
