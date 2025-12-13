@@ -138,8 +138,30 @@
   gap: 8px;
 }
 
+.wallet-topup-button {
+  margin-bottom: 24px;
+  height: 48px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: none;
+  color: #07B981;
+  font-weight: 600;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.wallet-topup-button:hover {
+  background: #f0f9e8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
 .wallet-task-card {
   border-radius: 16px;
+  background: #ffffff;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .wallet-task-content {
@@ -148,33 +170,60 @@
   gap: 12px;
 }
 
+.wallet-task-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f0f9e8 0%, #e6f7d9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .wallet-task-icon img {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
 }
 
 .wallet-task-main {
   flex: 1;
+  min-width: 0;
 }
 
 .wallet-task-title {
   display: block;
   font-size: 14px;
+  font-weight: 500;
   margin-bottom: 8px;
+  color: #262626;
+}
+
+.wallet-task-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .wallet-task-progress-bar {
   width: 100%;
-  height: 4px;
-  border-radius: 4px;
-  background: #e6e6e6;
+  height: 6px;
+  border-radius: 6px;
+  background: #f0f0f0;
   overflow: hidden;
 }
 
 .wallet-task-progress-inner {
   height: 100%;
-  background: #52c41a;
+  background: linear-gradient(90deg, #07B981 0%, #52c41a 100%);
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.wallet-task-progress-text {
+  font-size: 12px;
+  color: #999;
 }
 
 .wallet-task-status {

@@ -1,13 +1,16 @@
-import { Card, Typography, Spin, Empty } from 'antd'
+import { Card, Typography, Spin, Empty, Button } from 'antd'
 import { CheckCircleFilled } from '@ant-design/icons'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { walletService } from '@/services/wallet.service'
 import './WalletPage.css'
 
 const { Text } = Typography
 
 const WalletPage: React.FC = () => {
+  const navigate = useNavigate()
+  
   const { data: balance, isLoading: balanceLoading } = useQuery({
     queryKey: ['wallet-balance'],
     queryFn: walletService.getBalance,
@@ -43,6 +46,7 @@ const WalletPage: React.FC = () => {
 
   return (
     <div className="wallet-page">
+      {/* Header with green background */}
       <div className="wallet-header">
         <div className="wallet-header-row">
           <Text className="wallet-header-label">У вас</Text>
@@ -51,7 +55,7 @@ const WalletPage: React.FC = () => {
               {balanceLoading ? <Spin size="small" /> : balance?.balance?.toFixed(1) || '0.0'}
             </span>
             <img
-              src="/src/Resources/Images/coin.png"
+              src="/src/Resources/Images/Component 2.png"
               alt="Yess!Coin"
               className="wallet-header-coin"
             />
@@ -62,6 +66,7 @@ const WalletPage: React.FC = () => {
         </Text>
       </div>
 
+      {/* Levels Card */}
       <Card className="wallet-levels-card animate-pop" variant="borderless">
         <div className="wallet-levels-header">
           <Text className="wallet-levels-title">Уровни</Text>
@@ -69,12 +74,28 @@ const WalletPage: React.FC = () => {
         </div>
         <div className="wallet-levels-image">
           <img
-            src="/src/Resources/Images/Уровни.png"
+            src="/src/Resources/Images/design_app_veb/Уровни.png"
             alt="Уровни BRONZE GOLD SILVER"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement
+              target.src = '/src/Resources/Images/Уровни.png'
+            }}
           />
         </div>
       </Card>
 
+      {/* Top Up Button */}
+      <Button 
+        type="primary" 
+        size="large" 
+        block
+        className="wallet-topup-button"
+        onClick={() => navigate('/wallet/topup')}
+      >
+        Пополнить баланс
+      </Button>
+
+      {/* Tasks Section */}
       <Text className="wallet-tasks-title">Задания</Text>
 
       <div className="wallet-tasks-list animate-fade">
@@ -91,8 +112,12 @@ const WalletPage: React.FC = () => {
                 <div className="wallet-task-content">
                   <div className="wallet-task-icon">
                     <img
-                      src="/src/Resources/Images/coin.png"
+                      src="/src/Resources/Images/Component 2.png"
                       alt="task"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement
+                        target.src = '/src/Resources/Images/coin.png'
+                      }}
                     />
                   </div>
                   <div className="wallet-task-main">
@@ -104,6 +129,9 @@ const WalletPage: React.FC = () => {
                           style={{ width: `${progress * 100}%` }}
                         />
                       </div>
+                      <Text className="wallet-task-progress-text">
+                        {task.current} / {task.total}
+                      </Text>
                     </div>
                   </div>
                   <div className={`wallet-task-status ${isDone ? 'done' : ''}`}>

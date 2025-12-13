@@ -1,5 +1,6 @@
 // Базовый URL backend API. Продакшн-домен API: https://api.yessgo.org
 // Можно переопределить через VITE_API_BASE_URL в .env при необходимости.
+// Документация API: https://yessgo.org/docs/index.html
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.yessgo.org'
 
 // Версия API

@@ -116,7 +116,24 @@ export const partnerService = {
    */
   getCategories: async (): Promise<PartnerCategory[]> => {
     const response = await api.get<PartnerCategory[]>(API_ENDPOINTS.PARTNERS.CATEGORIES)
-    return response.data
+    return response.data.map((cat: any) => {
+      const iconUrl =
+        cat.iconUrl ||
+        cat.IconUrl ||
+        cat.icon ||
+        cat.Icon ||
+        cat.image ||
+        cat.Image ||
+        cat.coverUrl ||
+        cat.CoverUrl ||
+        cat.photo ||
+        cat.Photo
+
+      return {
+        ...cat,
+        iconUrl,
+      } as PartnerCategory
+    })
   },
 
   /**

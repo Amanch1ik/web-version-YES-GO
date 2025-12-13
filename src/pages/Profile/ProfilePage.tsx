@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons'
 import { useAuth } from '@/contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { resolveAssetUrl } from '@/utils/assets'
 import './ProfilePage.css'
 
 const { Title, Text } = Typography
@@ -120,17 +121,35 @@ const ProfilePage: React.FC = () => {
         <div className="profile-user-content">
           <Avatar
             size={56}
-            src={user?.avatarUrl}
+            src={resolveAssetUrl(
+              user?.avatarUrl ||
+              (user as any)?.AvatarUrl ||
+              (user as any)?.avatar ||
+              (user as any)?.Avatar ||
+              (user as any)?.photo ||
+              (user as any)?.Photo ||
+              (user as any)?.image ||
+              (user as any)?.Image
+            )}
             icon={<UserOutlined />}
             className="profile-avatar"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement
+              target.style.display = 'none'
+            }}
           >
-            {user?.firstName?.[0] || user?.fullName?.[0] || 'U'}
+            {!resolveAssetUrl(
+              user?.avatarUrl ||
+              (user as any)?.AvatarUrl ||
+              (user as any)?.avatar ||
+              (user as any)?.Avatar
+            ) && (user?.firstName?.[0] || user?.fullName?.[0] || 'U')}
           </Avatar>
           <div className="profile-user-info">
             <Title level={4} className="profile-user-name">
               {userFullName}
             </Title>
-            <Text className="profile-user-subtitle">Профиль</Text>
+            <Text className="profile-user-subtitle">{user?.city || 'Мой город'}</Text>
           </div>
           <RightOutlined className="profile-arrow" />
         </div>

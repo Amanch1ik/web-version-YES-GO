@@ -22,7 +22,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const token = getToken()
     const userData = getUser()
     
-    if (token && userData) {
+    // Бэкенд может возвращать Id или id
+    const userId = userData?.id || userData?.Id || userData?.ID
+    
+    if (token && userData && userId) {
       setUserState(userData)
       setIsAuthenticated(true)
     } else {
@@ -64,6 +67,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Убеждаемся, что токен есть
     const token = getToken()
     
+    if (import.meta.env.DEV) {
+      console.log('AuthContext.updateUser called:', {
+        hasToken: !!token,
+        hasUserData: !!userData,
+        userId: userData?.id
+      })
+    }
+    
     if (token && userData) {
       // Сначала обновляем localStorage (если еще не обновлено)
       const currentUser = getUser()
@@ -82,11 +93,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       })
       setIsAuthenticated(true)
       setLoading(false)
+      
+      if (import.meta.env.DEV) {
+        console.log('AuthContext: User state updated, isAuthenticated = true')
+      }
     } else {
       // Если нет токена или данных, сбрасываем состояние
       setUserState(null)
       setIsAuthenticated(false)
       setLoading(false)
+      
+      if (import.meta.env.DEV) {
+        console.warn('AuthContext: No token or userData, resetting state')
+      }
     }
   }, [])
 

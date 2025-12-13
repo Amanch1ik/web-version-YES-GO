@@ -33,6 +33,7 @@ import SocialPage from './pages/Social/SocialPage'
 import StoriesPage from './pages/Social/StoriesPage'
 import QRScannerPage from './pages/QR/QRScannerPage'
 import MapPage from './pages/Map/MapPage'
+import CartPage from './pages/Cart/CartPage'
 import { Spin } from 'antd'
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -46,7 +47,9 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   if (token && userStr) {
     try {
       const user = JSON.parse(userStr)
-      hasValidAuth = !!(user && user.id && token)
+      // Бэкенд может возвращать Id или id
+      const userId = user?.id || user?.Id || user?.ID
+      hasValidAuth = !!(user && userId && token)
     } catch (e) {
       hasValidAuth = false
     }
@@ -320,6 +323,16 @@ function App() {
             <PrivateRoute>
               <AppLayout>
                 <OrdersPage />
+              </AppLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/cart"
+          element={
+            <PrivateRoute>
+              <AppLayout>
+                <CartPage />
               </AppLayout>
             </PrivateRoute>
           }

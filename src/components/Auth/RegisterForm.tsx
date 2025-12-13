@@ -16,47 +16,104 @@ const RegisterForm: React.FC = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: (data: RegisterRequest) => authService.register(data),
     onSuccess: async (data) => {
-      updateUser(data.user)
-      
-      message.success({
-        content: 'Регистрация успешна!',
-        duration: 1.5,
-      })
-      
-      setTimeout(() => {
-        navigate('/', { replace: true })
-      }, 800)
+      try {
+        // authService.register уже сохраняет токен и пользователя
+        // Проверяем, что данные сохранены
+        const savedToken = localStorage.getItem('yess_token')
+        const savedUser = localStorage.getItem('yess_user')
+        
+        if (!savedToken || !savedUser) {
+          message.error('Ошибка сохранения данных авторизации')
+          return
+        }
+        
+        updateUser(data.user)
+        
+        message.success({
+          content: 'Регистрация успешна!',
+          duration: 1.5,
+        })
+        
+        setTimeout(() => {
+          const finalToken = localStorage.getItem('yess_token')
+          const finalUser = localStorage.getItem('yess_user')
+          
+          if (finalToken && finalUser) {
+            navigate('/', { replace: true })
+          } else {
+            message.error('Ошибка: данные авторизации не найдены')
+          }
+        }, 800)
+      } catch (error) {
+        console.error('Register error:', error)
+        message.error('Ошибка при регистрации')
+      }
     },
     onError: (error: any) => {
       if (error.code === 'ERR_NETWORK' || error.message?.includes('ERR_CONNECTION_REFUSED')) {
-        const apiUrl = (import.meta as any).env?.VITE_API_BASE_URL || 'https://yessgo.org'
-        message.error(`Не удалось подключиться к серверу. Убедитесь, что Backend API запущен на ${apiUrl}`)
+        const apiUrl = (import.meta as any).env?.VITE_API_BASE_URL || 'https://api.yessgo.org'
+        message.error({
+          content: `Не удалось подключиться к серверу. Убедитесь, что Backend API запущен на ${apiUrl}`,
+          duration: 5,
+        })
       } else if (error.response?.status === 502 || error.response?.status === 503 || error.response?.status === 504) {
         message.error('Сервер временно недоступен. Попробуйте позже.')
       } else if (error.response?.status === 400) {
         const errorData = error.response?.data
+        // Логируем детали ошибки для отладки
+        console.error('Registration error details:', errorData)
+        if (errorData?.errors) {
+          console.error('Validation errors:', JSON.stringify(errorData.errors, null, 2))
+        }
         
         if (errorData?.errors && typeof errorData.errors === 'object') {
           const errorMessages = Object.entries(errorData.errors)
             .flatMap(([field, messages]) => {
               const msgs = Array.isArray(messages) ? messages : [messages]
-              return msgs.map((msg: string) => `${field}: ${msg}`)
+              // Преобразуем название поля в читаемый формат
+              const fieldName = field === 'FirstName' || field === 'firstName' ? 'Имя' : 
+                               field === 'LastName' || field === 'lastName' ? 'Фамилия' :
+                               field === 'Email' || field === 'email' ? 'Email' :
+                               field === 'PhoneNumber' || field === 'phone' ? 'Телефон' :
+                               field === 'Password' || field === 'password' ? 'Пароль' : field
+              return msgs.map((msg: string) => `${fieldName}: ${msg}`)
             })
             .filter(Boolean)
-          
           if (errorMessages.length > 0) {
-            message.error(errorMessages[0])
+            message.error({
+              content: errorMessages.join(' | '),
+              duration: 5,
+            })
           } else {
             message.error('Ошибка валидации данных')
           }
+        } else if (errorData?.message) {
+          message.error({
+            content: errorData.message,
+            duration: 5,
+          })
+        } else if (errorData?.title) {
+          message.error({
+            content: errorData.title,
+            duration: 5,
+          })
         } else {
-          const errorMsg = errorData?.title || errorData?.message || JSON.stringify(errorData) || 'Неверный формат данных'
-          message.error(errorMsg)
+          // Показываем весь объект ошибки для отладки
+          const errorString = typeof errorData === 'string' ? errorData : JSON.stringify(errorData)
+          message.error({
+            content: `Ошибка регистрации: ${errorString || 'Неверный формат данных'}`,
+            duration: 5,
+          })
         }
       } else if (error.response?.status === 409) {
         message.error('Пользователь с таким телефоном или email уже существует')
+      } else if (error.response?.status === 404) {
+        message.error('Сервис регистрации недоступен')
+      } else if (error.response?.status >= 500) {
+        message.error('Ошибка сервера. Попробуйте позже')
       } else {
-        message.error(error.response?.data?.message || error.response?.data?.error || 'Ошибка регистрации')
+        const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message || 'Ошибка регистрации'
+        message.error(errorMsg)
       }
     },
   })
@@ -152,14 +209,18 @@ const RegisterForm: React.FC = () => {
         rules={[
           { required: true, message: 'Введите номер телефона' },
           { 
-            pattern: /^(\+?996|0)?[0-9]{9}$/, 
-            message: 'Неверный формат телефона' 
+            pattern: /^(\+996|996|0)?[0-9]{9}$/, 
+            message: 'Неверный формат телефона. Пример: +996507700007 или 0507700007' 
           },
         ]}
-        normalize={(value) => value?.replace(/\s+/g, '')}
+        normalize={(value) => {
+          if (!value) return value
+          // Убираем все пробелы, дефисы и другие символы, оставляем только цифры и +
+          return value.replace(/[^\d+]/g, '')
+        }}
       >
         <Input
-          placeholder="Введите номер телефона"
+          placeholder="+996507700007 или 0507700007"
           size="large"
           prefix={<PhoneOutlined />}
           className="auth-input"

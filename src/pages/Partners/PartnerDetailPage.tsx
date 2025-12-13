@@ -123,6 +123,7 @@ const PartnerDetailPage: React.FC = () => {
           <Button
             type="text"
             className="partner-detail-cart-button"
+            onClick={() => navigate('/cart')}
           >
             <img src="/src/Resources/Eye/basket.svg" alt="Cart" style={{ width: 20, height: 20 }} />
           </Button>
@@ -148,19 +149,52 @@ const PartnerDetailPage: React.FC = () => {
               (partner as any).Photo
             )}
             className="partner-logo"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement
+              target.style.display = 'none'
+            }}
           >
-            {partner.name?.[0] || 'P'}
+            {!resolveAssetUrl(
+              partner.logoUrl ||
+              (partner as any).LogoUrl ||
+              (partner as any).logo ||
+              (partner as any).Logo ||
+              (partner as any).image ||
+              (partner as any).Image ||
+              partner.avatarUrl ||
+              (partner as any).avatar ||
+              (partner as any).Avatar ||
+              (partner as any).photo ||
+              (partner as any).Photo
+            ) && (partner.name?.[0] || 'P')}
           </Avatar>
           <div className="partner-info-text">
             <Title level={2} className="partner-name">
               {partner.name}
             </Title>
             <div className="partner-discount-badge">
-              <Badge.Ribbon text={`-${discount}%`} color="green">
-                <div style={{ padding: '8px 0' }}>
-                  <Text className="partner-discount-text">Скидки на все</Text>
-                </div>
-              </Badge.Ribbon>
+              <Button
+                type="primary"
+                size="large"
+                className="partner-discount-button"
+                onClick={() => {
+                  // Переход на вкладку товаров или открытие модального окна со скидками
+                  setActiveTab('products')
+                  // Можно также добавить прокрутку к товарам
+                  setTimeout(() => {
+                    const productsSection = document.querySelector('.partner-tabs-card')
+                    if (productsSection) {
+                      productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    }
+                  }, 100)
+                }}
+              >
+                <Badge.Ribbon text={`-${discount}%`} color="green">
+                  <div style={{ padding: '8px 16px' }}>
+                    <Text className="partner-discount-text" strong>Скидки на все</Text>
+                  </div>
+                </Badge.Ribbon>
+              </Button>
             </div>
             <div className="partner-rating">
               <Rate disabled defaultValue={rating} allowHalf />

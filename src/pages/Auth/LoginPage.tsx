@@ -7,7 +7,7 @@ const LoginPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login')
 
   return (
-    <div className="auth-page animate-fade">
+    <div className="auth-page login-background animate-fade">
       <div className="auth-card animate-pop">
         <div className="auth-tabs">
           <button

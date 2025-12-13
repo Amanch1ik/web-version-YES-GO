@@ -5,8 +5,9 @@ import { useAuth } from '@/contexts/AuthContext'
 import { walletService } from '@/services/wallet.service'
 import { partnerService } from '@/services/partner.service'
 import { bannerService } from '@/services/banner.service'
+import { promotionService } from '@/services/promotion.service'
 import { Banner } from '@/types/banner'
-import { resolveAssetUrl } from '@/utils/assets'
+import { resolveAssetUrl, imageResource } from '@/utils/assets'
 import './HomePage.css'
 
 const { Title, Text } = Typography
@@ -43,6 +44,15 @@ const HomePage: React.FC = () => {
     refetchOnWindowFocus: false,
   })
 
+  // Получаем промокоды для баннеров
+  const { data: promoCodes } = useQuery({
+    queryKey: ['promo-codes'],
+    queryFn: promotionService.getPromoCodes,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  })
+
+  // Моковые партнеры для статического дизайна
   const featuredPartners = partners?.slice(0, 4).map((partner) => ({
     id: partner.id,
     name: partner.name,
@@ -52,25 +62,140 @@ const HomePage: React.FC = () => {
       (partner as any).logo ||
       (partner as any).image ||
       (partner as any).Image ||
-      partner.avatarUrl ||
+      (partner as any).avatarUrl ||
       (partner as any).avatar ||
       (partner as any).Avatar ||
       (partner as any).photo ||
       (partner as any).Photo
     ),
-  })) || []
+  })) || [
+    { id: 1, name: 'Partner 1', logo: '/src/Resources/Images/profile.png' },
+    { id: 2, name: 'Partner 2', logo: '/src/Resources/Images/profile.png' },
+    { id: 3, name: 'Partner 3', logo: '/src/Resources/Images/profile.png' },
+    { id: 4, name: 'Partner 4', logo: '/src/Resources/Images/profile.png' }
+  ]
 
   const quickActions = [
     { icon: '/src/Resources/Images/sc_bonus.png', label: 'Бонусы', color: '#722ed1', onClick: () => navigate('/certificates') },
-    { icon: '/src/Resources/Images/coin.png', label: 'Yess!Coin', color: '#faad14', onClick: () => navigate('/wallet') },
+    { icon: '/src/Resources/Images/Component 2.png', label: 'Yess!Coin', color: '#faad14', onClick: () => navigate('/wallet') },
     { icon: '/src/Resources/Images/sc_we.png', label: 'Мы', color: '#1890ff', onClick: () => navigate('/social') },
-    { icon: '/src/Resources/Images/sc_sale.png', label: 'Акции', color: '#722ed1', onClick: () => navigate('/stories') },
+    { icon: '/src/Resources/Images/image 278.png', label: 'Акции', color: '#722ed1', onClick: () => navigate('/stories') },
     { icon: '/src/Resources/Images/image 183.png', label: 'ДР', color: '#eb2f96', onClick: () => navigate('/promo-code') },
   ]
 
-  const categories = categoriesData?.slice(0, 3) || []
+  // Для статического дизайна используем моковые данные
+  const categories = categoriesData?.slice(0, 3) || [
+    { id: 1, name: 'Одежда и обувь' },
+    { id: 2, name: 'Все для дома' },
+    { id: 3, name: 'Электроника' }
+  ]
 
-  const bannersToShow = activeBanners?.slice(0, 2) || []
+  // Моковые баннеры для дизайна
+  const bannersToShow = activeBanners?.slice(0, 2) || [
+    {
+      id: 1,
+      title: 'А вот и весна!',
+      description: '-20% на первый заказ от 1000 р',
+      promoCode: 'rt8pxdj',
+      imageUrl: '/src/Resources/Images/banner_1.png'
+    } as Banner,
+    {
+      id: 2,
+      title: 'Доставка',
+      description: 'СКИДКА -25% на первый заказ',
+      promoCode: 'gnfva4t',
+      deliveryTime: 'Доставка от 30 минут',
+      imageUrl: '/src/Resources/Images/banner_2.png'
+    } as Banner
+  ]
+
+  // Маппинг названий категорий к изображениям - точное сопоставление
+  const getCategoryImage = (categoryName?: string): string => {
+    if (!categoryName) return imageResource('cat_all.png')
+    
+    const name = categoryName.toLowerCase().trim()
+    
+    // Точное сопоставление по названиям из дизайна
+    if (name.includes('все компании') || name === 'все компании') {
+      return imageResource('cat_all.png')
+    }
+    if ((name.includes('еда') && name.includes('напитк')) || (name.includes('food') && name.includes('drink'))) {
+      return imageResource('cat_food.png')
+    }
+    if (name === 'продукты' || (name.includes('продукт') && !name.includes('еда'))) {
+      return imageResource('category_products.png')
+    }
+    if ((name.includes('одежда') && name.includes('обувь')) || name.includes('clothes') || name.includes('shoes')) {
+      return imageResource('cat_clothes.png')
+    }
+    if (name === 'красота' || name.includes('красот')) {
+      return imageResource('cat_beauty.png')
+    }
+    if (name.includes('дом') || name === 'все для дома') {
+      return imageResource('cat_home.png')
+    }
+    if (name.includes('электро')) {
+      return imageResource('cat_electronics.png')
+    }
+    if (name === 'детское' || name.includes('дет')) {
+      return imageResource('cat_kids.png')
+    }
+    if (name.includes('спорт') && name.includes('отдых')) {
+      return imageResource('cat_sport.png')
+    }
+    if (name.includes('кафе') || name.includes('ресторан')) {
+      return imageResource('category_cafe.png')
+    }
+    if (name === 'транспорт' || name.includes('транспорт')) {
+      return imageResource('category_transport.png')
+    }
+    if (name === 'образование' || name.includes('образован')) {
+      return imageResource('category_education.png')
+    }
+    
+    // Fallback
+    if (name.includes('одежда') || name.includes('обувь')) {
+      return imageResource('cat_clothes.png')
+    }
+    if (name.includes('дом')) {
+      return imageResource('cat_home.png')
+    }
+    if (name.includes('электро')) {
+      return imageResource('cat_electronics.png')
+    }
+    if (name.includes('еда')) {
+      return imageResource('cat_food.png')
+    }
+    if (name.includes('красот')) {
+      return imageResource('cat_beauty.png')
+    }
+    if (name.includes('спорт')) {
+      return imageResource('cat_sport.png')
+    }
+    if (name.includes('дет')) {
+      return imageResource('cat_kids.png')
+    }
+    
+    return imageResource('cat_all.png')
+  }
+
+  // Получаем промо-код для баннера
+  const getBannerPromoCode = (banner: Banner, index: number): string | undefined => {
+    // Используем моковые промо-коды для дизайна
+    if (index === 0) return 'rt8pxdj'
+    if (index === 1) return 'gnfva4t'
+    
+    // Проверяем, есть ли промо-код в самом баннере
+    if ((banner as any).promoCode || (banner as any).promo_code || (banner as any).promocode) {
+      return (banner as any).promoCode || (banner as any).promo_code || (banner as any).promocode
+    }
+    // Если есть promotionId, ищем промо-код в списке
+    if (banner.promotionId && promoCodes) {
+      const promoCode = promoCodes.find(pc => pc.promotionId === banner.promotionId)
+      return promoCode?.code
+    }
+    return undefined
+  }
 
   const handleBannerClick = (banner: Banner) => {
     if (banner.externalUrl) {
@@ -129,10 +254,25 @@ const HomePage: React.FC = () => {
         <div className="home-header-content">
           <Avatar 
             size={48} 
-            src={user?.avatarUrl || '/src/Resources/Images/profile.png'}
+            src={resolveAssetUrl(
+              user?.avatarUrl ||
+              (user as any)?.AvatarUrl ||
+              (user as any)?.avatar ||
+              (user as any)?.Avatar ||
+              (user as any)?.photo ||
+              (user as any)?.Photo ||
+              (user as any)?.image ||
+              (user as any)?.Image
+            ) || '/src/Resources/Images/profile.png'}
             className="home-avatar"
+            onError={() => false}
           >
-            {!user?.avatarUrl && (user?.firstName?.[0] || user?.fullName?.[0] || user?.phone?.[0] || user?.email?.[0] || 'U')}
+            {!resolveAssetUrl(
+              user?.avatarUrl ||
+              (user as any)?.AvatarUrl ||
+              (user as any)?.avatar ||
+              (user as any)?.Avatar
+            ) && (user?.firstName?.[0] || user?.fullName?.[0] || user?.phone?.[0] || user?.email?.[0] || 'U')}
           </Avatar>
           <div className="home-user-info">
             <Title level={4} className="home-user-name">
@@ -160,14 +300,12 @@ const HomePage: React.FC = () => {
         <div className="balance-content">
           <div className="balance-main">
             <Title level={2} className="balance-amount">
-              {balanceLoading ? '...' : balance?.balance?.toFixed(1) || '0.0'}
+              {balanceLoading ? '...' : balance?.balance?.toFixed(1) || '55.7'}
             </Title>
             <Button className="coin-badge">Yess!Coin</Button>
           </div>
           <div className="coins-illustration">
-            <img src="/src/Resources/Images/coin.png" alt="Coin" className="coin-img coin-1" />
-            <img src="/src/Resources/Images/coin.png" alt="Coin" className="coin-img coin-2" />
-            <img src="/src/Resources/Images/coin.png" alt="Coin" className="coin-img coin-3" />
+            <img src="/src/Resources/Images/coin.png" alt="Coin" className="coin-img" />
           </div>
         </div>
       </Card>
@@ -224,12 +362,36 @@ const HomePage: React.FC = () => {
                         {banner.description}
                       </Text>
                     )}
+                    {getBannerPromoCode(banner, index) && (
+                      <Text className="promo-code">
+                        {getBannerPromoCode(banner, index)}
+                      </Text>
+                    )}
+                    {/* Бейдж "Доставка от 30 минут" для зеленого баннера */}
+                    {index === 1 && (
+                      <Text className="promo-delivery-time">
+                        Доставка от 30 минут
+                      </Text>
+                    )}
                   </div>
                   <div className="promo-image">
                     <img 
-                      src={resolveAssetUrl(banner.imageUrl)} 
+                      src={resolveAssetUrl(
+                        banner.imageUrl ||
+                        (banner as any).ImageUrl ||
+                        (banner as any).image ||
+                        (banner as any).Image ||
+                        (banner as any).coverUrl ||
+                        (banner as any).CoverUrl ||
+                        (banner as any).photo ||
+                        (banner as any).Photo
+                      ) || '/src/Resources/Images/banner_1.png'} 
                       alt={banner.title || 'Баннер'} 
                       className="promo-image-img"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement
+                        target.src = '/src/Resources/Images/banner_1.png'
+                      }}
                     />
                   </div>
                 </div>
@@ -237,7 +399,7 @@ const HomePage: React.FC = () => {
             </Col>
           ))
         ) : (
-          <Col span={24}>
+          <Col span={24} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
             <Empty description="Нет баннеров" />
           </Col>
         )}
@@ -269,17 +431,20 @@ const HomePage: React.FC = () => {
                   onClick={() => navigate(`/partners?category=${category.id}`)}
                 >
                   <div className="category-icon">
-                    {category.iconUrl ? (
-                      <img 
-                        src={resolveAssetUrl(category.iconUrl)} 
-                        alt={category.name} 
-                        className="category-icon-img"
-                      />
-                    ) : (
-                      <div className="category-icon-placeholder">
-                        {category.name?.[0] || 'C'}
-                      </div>
-                    )}
+                    <img 
+                      src={getCategoryImage(category.name)} 
+                      alt={category.name} 
+                      className="category-icon-img"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement
+                        target.style.display = 'none'
+                        const placeholder = target.nextElementSibling as HTMLElement
+                        if (placeholder) placeholder.style.display = 'flex'
+                      }}
+                    />
+                    <div className="category-icon-placeholder" style={{ display: 'none' }}>
+                      {category.name?.[0] || 'C'}
+                    </div>
                   </div>
                   <Text className="category-name">{category.name}</Text>
                 </Card>
@@ -311,8 +476,9 @@ const HomePage: React.FC = () => {
                   size={56}
                   src={partner.logo}
                   className="partner-avatar"
+                  onError={() => false}
                 >
-                  {partner.name.charAt(0)}
+                  {!partner.logo && partner.name.charAt(0)}
                 </Avatar>
               </div>
             ))}

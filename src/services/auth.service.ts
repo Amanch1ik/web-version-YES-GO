@@ -22,26 +22,105 @@ export const authService = {
    * Вход по телефону/email и паролю
    */
   login: async (data: LoginRequest): Promise<AuthResponse> => {
-    const rawPhone = data.phone || data.email
-    if (!rawPhone) {
-      throw new Error('Необходимо указать телефон')
+    const rawContact = data.phone || data.email
+    if (!rawContact) {
+      throw new Error('Необходимо указать телефон или email')
     }
-    const cleanPhone = rawPhone.replace(/\s+/g, '').replace(/[^\d+]/g, '').trim()
     
-    const loginData = { 
-      phone: cleanPhone, 
-      password: data.password 
+    // Определяем, является ли это email или телефон
+    const isEmail = rawContact.includes('@')
+    // Тип для TypeScript, но реальные данные будут в PascalCase
+    let loginData: Record<string, string>
+    
+    // Бэкенд ожидает поля с заглавной буквы (PascalCase)
+    // Для логина используется Phone (не PhoneNumber как в регистрации)
+    if (isEmail) {
+      loginData = {
+        Email: rawContact.trim().toLowerCase(),
+        Password: data.password
+      }
+    } else {
+      // Очищаем телефон от всех символов кроме цифр и +
+      const cleanPhone = rawContact.replace(/\s+/g, '').replace(/[^\d+]/g, '').trim()
+      loginData = {
+        Phone: cleanPhone,
+        Password: data.password
+      }
+    }
+    
+    // Логирование для отладки
+    if (import.meta.env.DEV) {
+      console.log('Login data being sent:', { ...loginData, Password: '***' })
     }
     
     const response = await api.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, loginData)
-    if (response.data.token) {
-      setToken(response.data.token)
-      if (response.data.refreshToken) {
-        setRefreshToken(response.data.refreshToken)
-      }
-      setUser(response.data.user)
+    
+    // Логирование структуры ответа
+    if (import.meta.env.DEV) {
+      console.log('Login API response:', {
+        status: response.status,
+        data: response.data,
+        hasToken: !!(response.data as any).token,
+        hasUser: !!(response.data as any).user,
+        dataKeys: Object.keys(response.data || {})
+      })
     }
-    return response.data
+    
+    // Бэкенд возвращает AccessToken и RefreshToken (PascalCase)
+    const responseData = response.data as any
+    const token = responseData.AccessToken || responseData.token || responseData.accessToken || responseData.access_token
+    const refreshToken = responseData.RefreshToken || responseData.refreshToken || responseData.refresh_token
+    
+    // Объявляем user в правильной области видимости
+    let user: User | null = responseData.user || responseData.User || responseData.userData || responseData.data || null
+    
+    if (token) {
+      setToken(token)
+      if (refreshToken) {
+        setRefreshToken(refreshToken)
+      }
+      
+      // Если пользователя нет в ответе, получаем его через /auth/me
+      if (!user) {
+        try {
+          const userResponse = await api.get<User>(API_ENDPOINTS.AUTH.ME)
+          user = userResponse.data
+        } catch (error) {
+          console.error('Failed to fetch user data:', error)
+        }
+      }
+      
+      if (user) {
+        // Нормализуем данные пользователя: приводим Id/id к единому формату
+        const normalizedUser = {
+          ...user,
+          id: user.Id || user.id || user.ID || user.Id
+        }
+        setUser(normalizedUser as User)
+      }
+      
+      // Логирование успешного логина
+      if (import.meta.env.DEV) {
+        const normalizedUserId = user ? (user.Id || user.id || user.ID) : undefined
+        console.log('✅ Login successful!', {
+          token: token ? 'saved' : 'missing',
+          refreshToken: refreshToken ? 'saved' : 'missing',
+          user: user ? 'saved' : 'missing',
+          userId: normalizedUserId,
+          savedToken: localStorage.getItem('yess_token') ? 'yes' : 'no',
+          savedUser: localStorage.getItem('yess_user') ? 'yes' : 'no'
+        })
+      }
+    } else {
+      console.error('❌ No token in login response:', responseData)
+    }
+    
+    // Возвращаем данные в правильном формате
+    return {
+      token: token || '',
+      refreshToken: refreshToken || undefined,
+      user: user || null
+    } as AuthResponse
   },
 
   /**
@@ -63,6 +142,20 @@ export const authService = {
    * Регистрация нового пользователя
    */
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
+    // Валидация обязательных полей
+    if (!data.firstName || !data.firstName.trim()) {
+      throw new Error('Имя обязательно для заполнения')
+    }
+    if (!data.lastName || !data.lastName.trim()) {
+      throw new Error('Фамилия обязательна для заполнения')
+    }
+    if (!data.password || data.password.length < 6) {
+      throw new Error('Пароль должен быть не менее 6 символов')
+    }
+    if (!data.phone || !data.phone.trim()) {
+      throw new Error('Телефон обязателен для заполнения')
+    }
+
     const cleanPhone = data.phone?.replace(/\s+/g, '').replace(/[^\d+]/g, '').trim()
     // Нормализуем телефон под формат API: начинаем с +996 и 9 цифр
     let normalizedPhone = cleanPhone
@@ -79,33 +172,77 @@ export const authService = {
       }
     }
 
+    // Бэкенд ожидает поля с заглавной буквы (PascalCase)
     const registerData: Record<string, unknown> = {
-      firstName: data.firstName?.trim(),
-      lastName: data.lastName?.trim(),
-      password: data.password,
+      FirstName: data.firstName.trim(),
+      LastName: data.lastName.trim(),
+      Password: data.password,
+      PhoneNumber: normalizedPhone,
     }
     
-    if (data.email) {
-      registerData.email = data.email.trim().toLowerCase()
-    }
-    
-    if (normalizedPhone) {
-      registerData.phone = normalizedPhone
+    if (data.email && data.email.trim()) {
+      registerData.Email = data.email.trim().toLowerCase()
     }
 
-    if (data.referralCode) {
-      registerData.referralCode = data.referralCode.trim()
+    if (data.referralCode && data.referralCode.trim()) {
+      registerData.ReferralCode = data.referralCode.trim()
+    }
+    
+    // Логирование для отладки (только в dev режиме)
+    if (import.meta.env.DEV) {
+      console.log('Register data being sent:', { ...registerData, password: '***' })
     }
     
     const response = await api.post<AuthResponse>(API_ENDPOINTS.AUTH.REGISTER, registerData)
-    if (response.data.token) {
-      setToken(response.data.token)
-      if (response.data.refreshToken) {
-        setRefreshToken(response.data.refreshToken)
+    
+    // Бэкенд возвращает AccessToken и RefreshToken (PascalCase)
+    const responseData = response.data as any
+    const token = responseData.AccessToken || responseData.token || responseData.accessToken || responseData.access_token
+    const refreshToken = responseData.RefreshToken || responseData.refreshToken || responseData.refresh_token
+    // Объявляем user в правильной области видимости
+    let user: User | null = responseData.user || responseData.User || responseData.userData || responseData.data || null
+    
+    if (token) {
+      setToken(token)
+      if (refreshToken) {
+        setRefreshToken(refreshToken)
       }
-      setUser(response.data.user)
+      
+      // Если пользователя нет в ответе, получаем его через /auth/me
+      if (!user) {
+        try {
+          const userResponse = await api.get<User>(API_ENDPOINTS.AUTH.ME)
+          user = userResponse.data
+        } catch (error) {
+          console.error('Failed to fetch user data after registration:', error)
+        }
+      }
+      
+      if (user) {
+        // Нормализуем данные пользователя: приводим Id/id к единому формату
+        const normalizedUser = {
+          ...user,
+          id: user.Id || user.id || user.ID || user.Id
+        }
+        setUser(normalizedUser as User)
+      }
+      
+      // Логирование успешной регистрации
+      if (import.meta.env.DEV) {
+        console.log('✅ Registration successful!', {
+          token: token ? 'saved' : 'missing',
+          refreshToken: refreshToken ? 'saved' : 'missing',
+          user: user ? 'saved' : 'missing',
+          userId: user ? (user.Id || user.id || user.ID) : undefined
+        })
+      }
     }
-    return response.data
+    
+    return {
+      token: token || '',
+      refreshToken: refreshToken || undefined,
+      user: user || null
+    } as AuthResponse
   },
 
   /**
@@ -227,8 +364,11 @@ export const authService = {
    * Получить URL для Google OAuth
    */
   getGoogleAuthUrl: (): string => {
+    const isDev = import.meta.env.DEV
+    const useDirectApi = import.meta.env.VITE_DIRECT_API === 'true'
+    const baseUrl = useDirectApi ? `${API_BASE_URL}/api` : (isDev ? '/api' : `${API_BASE_URL}/api`)
     const redirectUri = `${window.location.origin}/auth/google/callback`
-    return `${API_BASE_URL}/api${API_ENDPOINTS.AUTH.GOOGLE_LOGIN}?redirect_uri=${encodeURIComponent(redirectUri)}`
+    return `${baseUrl}${API_ENDPOINTS.AUTH.GOOGLE_LOGIN}?redirect_uri=${encodeURIComponent(redirectUri)}`
   },
 
   /**
@@ -253,10 +393,15 @@ export const authService = {
 
   /**
    * Получить URL для Apple OAuth
+   * Обычно бэкенд имеет endpoint, который редиректит на Apple OAuth
    */
   getAppleAuthUrl: (): string => {
+    const isDev = import.meta.env.DEV
+    const useDirectApi = import.meta.env.VITE_DIRECT_API === 'true'
+    const baseUrl = useDirectApi ? `${API_BASE_URL}/api` : (isDev ? '/api' : `${API_BASE_URL}/api`)
     const redirectUri = `${window.location.origin}/auth/apple/callback`
-    return `${API_BASE_URL}/api${API_ENDPOINTS.AUTH.APPLE_LOGIN}?redirect_uri=${encodeURIComponent(redirectUri)}`
+    // Используем APPLE_LOGIN endpoint, который должен редиректить на Apple OAuth страницу
+    return `${baseUrl}${API_ENDPOINTS.AUTH.APPLE_LOGIN}?redirect_uri=${encodeURIComponent(redirectUri)}`
   },
 
   /**

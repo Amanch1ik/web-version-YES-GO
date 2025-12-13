@@ -42,66 +42,137 @@ const LoginForm: React.FC = () => {
     mutationFn: (data: LoginRequest) => authService.login(data),
     onSuccess: async (data) => {
       try {
-        const { setToken, setUser } = await import('@/utils/storage')
-        setToken(data.token)
-        setUser(data.user)
+        if (import.meta.env.DEV) {
+          console.log('Login onSuccess - received data:', {
+            hasToken: !!data.token,
+            hasUser: !!data.user,
+            userId: data.user?.id
+          })
+        }
         
+        // authService.login уже сохранил токен и пользователя
+        // Проверяем, что данные сохранены
         const savedToken = localStorage.getItem('yess_token')
         const savedUser = localStorage.getItem('yess_user')
         
-        if (!savedToken || !savedUser) {
+        if (import.meta.env.DEV) {
+          let parsedUser = null
+          if (savedUser && savedUser !== 'undefined') {
+            try {
+              parsedUser = JSON.parse(savedUser)
+            } catch (e) {
+              console.error('Error parsing saved user:', e, 'savedUser:', savedUser)
+            }
+          }
+          console.log('Login onSuccess - checking saved data:', {
+            hasToken: !!savedToken,
+            hasUser: !!savedUser,
+            savedUserValue: savedUser,
+            tokenLength: savedToken?.length || 0,
+            userData: parsedUser
+          })
+        }
+        
+        if (!savedToken || !savedUser || savedUser === 'undefined') {
           message.error('Ошибка сохранения данных авторизации')
           return
         }
         
-        updateUser(data.user)
+        // Обновляем пользователя в контексте (используем данные из ответа API)
+        if (data.user) {
+          updateUser(data.user)
+        }
         
         message.success({
           content: 'Успешный вход!',
-          duration: 1,
+          duration: 1.5,
         })
         
+        // Даем время для обновления состояния и затем перенаправляем
         setTimeout(() => {
           const finalToken = localStorage.getItem('yess_token')
           const finalUser = localStorage.getItem('yess_user')
           
-          if (finalToken && finalUser) {
+          if (import.meta.env.DEV) {
+            console.log('Redirecting to home page...', {
+              hasToken: !!finalToken,
+              hasUser: !!finalUser,
+              finalUserValue: finalUser
+            })
+          }
+          
+          if (finalToken && finalUser && finalUser !== 'undefined') {
             navigate('/', { replace: true })
           } else {
+            console.error('Auth data missing before redirect', {
+              token: finalToken,
+              user: finalUser
+            })
             message.error('Ошибка: данные авторизации не найдены')
           }
-        }, 100)
+        }, 500)
       } catch (error) {
-        console.error('Login error:', error)
+        console.error('Login onSuccess error:', error)
         message.error('Ошибка при входе в систему')
       }
     },
     onError: (error: any) => {
       if (error.code === 'ERR_NETWORK' || error.message?.includes('ERR_CONNECTION_REFUSED')) {
-        const apiUrl = (import.meta as any).env?.VITE_API_BASE_URL || 'https://yessgo.org'
-        message.error(`Не удалось подключиться к серверу. Убедитесь, что Backend API запущен на ${apiUrl}`)
+        const apiUrl = (import.meta as any).env?.VITE_API_BASE_URL || 'https://api.yessgo.org'
+        message.error({
+          content: `Не удалось подключиться к серверу. Убедитесь, что Backend API запущен на ${apiUrl}`,
+          duration: 5,
+        })
       } else if (error.response?.status === 400) {
         const errorData = error.response?.data
+        // Логируем детали ошибки для отладки
+        console.error('Login error details:', errorData)
+        if (errorData?.errors) {
+          console.error('Validation errors:', JSON.stringify(errorData.errors, null, 2))
+        }
         
         if (errorData?.errors && typeof errorData.errors === 'object') {
           const errorMessages = Object.entries(errorData.errors)
             .flatMap(([field, messages]) => {
               const msgs = Array.isArray(messages) ? messages : [messages]
-              return msgs.map((msg: string) => `${field}: ${msg}`)
+              // Преобразуем название поля в читаемый формат
+              const fieldName = field === 'Email' || field === 'email' ? 'Email' :
+                               field === 'Phone' || field === 'PhoneNumber' || field === 'phone' ? 'Телефон' :
+                               field === 'Password' || field === 'password' ? 'Пароль' : field
+              return msgs.map((msg: string) => `${fieldName}: ${msg}`)
             })
             .filter(Boolean)
-          
           if (errorMessages.length > 0) {
-            message.error(errorMessages[0])
+            message.error({
+              content: errorMessages.join(' | '),
+              duration: 5,
+            })
           } else {
             message.error('Ошибка валидации данных')
           }
+        } else if (errorData?.message) {
+          message.error({
+            content: errorData.message,
+            duration: 5,
+          })
+        } else if (errorData?.title) {
+          message.error({
+            content: errorData.title,
+            duration: 5,
+          })
         } else {
-          const errorMsg = errorData?.title || errorData?.message || JSON.stringify(errorData) || 'Неверный формат данных'
-          message.error(errorMsg)
+          const errorString = typeof errorData === 'string' ? errorData : JSON.stringify(errorData)
+          message.error({
+            content: `Ошибка входа: ${errorString || 'Неверный формат данных'}`,
+            duration: 5,
+          })
         }
       } else if (error.response?.status === 401) {
-        message.error('Неверный номер телефона или пароль')
+        message.error('Неверный телефон/email или пароль')
+      } else if (error.response?.status === 404) {
+        message.error('Пользователь не найден')
+      } else if (error.response?.status >= 500) {
+        message.error('Ошибка сервера. Попробуйте позже')
       } else {
         message.error(error.response?.data?.message || error.response?.data?.error || error.message || 'Ошибка входа')
       }
@@ -175,15 +246,37 @@ const LoginForm: React.FC = () => {
       className="auth-form"
     >
       <Form.Item
-        label="Телефон"
+        label="Телефон или Email"
         name="phone"
         rules={[
-          { required: true, message: 'Введите номер телефона' },
-          { pattern: /^[+]?[\d\s-]{6,20}$/, message: 'Неверный формат телефона' },
+          { required: true, message: 'Введите номер телефона или email' },
+          { 
+            validator: (_, value) => {
+              if (!value) {
+                return Promise.reject(new Error('Введите номер телефона или email'))
+              }
+              // Проверяем, является ли это email или телефон
+              const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+              const isPhone = /^(\+?996|996|0)?[0-9]{9}$/.test(value.replace(/[^\d+]/g, ''))
+              if (isEmail || isPhone) {
+                return Promise.resolve()
+              }
+              return Promise.reject(new Error('Неверный формат телефона или email'))
+            }
+          },
         ]}
+        normalize={(value) => {
+          if (!value) return value
+          // Если это похоже на email, оставляем как есть
+          if (value.includes('@')) {
+            return value.trim().toLowerCase()
+          }
+          // Для телефона убираем все кроме цифр и +
+          return value.replace(/[^\d+]/g, '')
+        }}
       >
         <Input
-          placeholder="Введите номер телефона"
+          placeholder="+996507700007 или email@example.com"
           size="large"
           prefix={<UserOutlined />}
           className="auth-input"

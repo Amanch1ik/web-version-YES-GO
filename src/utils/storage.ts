@@ -118,5 +118,7 @@ export const clearStorage = (): void => {
 export const isAuthenticated = (): boolean => {
   const token = getToken()
   const user = getUser()
-  return !!(token && user && user.id)
+  // Бэкенд может возвращать Id или id
+  const userId = user?.id || user?.Id || user?.ID
+  return !!(token && user && userId)
 }
